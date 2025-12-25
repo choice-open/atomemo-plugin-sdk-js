@@ -14,12 +14,19 @@
     "url": "https://github.com/author/library/issues"
   },
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "development": "./src/types.ts",
+      "default": "./dist/types.js"
+    },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -45,6 +52,13 @@
   "peerDependenciesMeta": {
     "zod": {
       "optional": false
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": "./dist/index.js",
+      "./types": "./dist/types.js",
+      "./package.json": "./package.json"
     }
   }
 }
