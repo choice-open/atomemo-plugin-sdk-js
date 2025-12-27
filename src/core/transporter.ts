@@ -12,7 +12,7 @@ export interface TransporterOptions
 
 /**
  * Creates a network transporter for communication with the Daemon Server.
- * 
+ *
  * @param options - The options for the transporter.
  * @returns An object with a connect method to establish the connection and a dispose method to close it.
  */
@@ -54,7 +54,7 @@ export function createTransporter(options: TransporterOptions = {}) {
   return {
     /**
      * Connects to the mirror:lobby channel and returns a channel object and a dispose function.
-     * 
+     *
      * @returns An object with a channel property and a dispose function.
      */
     connect: () => {
@@ -63,13 +63,21 @@ export function createTransporter(options: TransporterOptions = {}) {
       channel
         .join()
         .receive("ok", (response) => {
-          socket.log("channel:joined", `Joined mirror:lobby successfully`, response)
+          socket.log(
+            "channel:joined",
+            `Joined mirror:lobby successfully`,
+            response,
+          )
         })
         .receive("error", (response) => {
           socket.log("channel:error", `Failed to join mirror:lobby`, response)
         })
         .receive("timeout", (response) => {
-          socket.log("channel:timeout", `Timeout while joining mirror:lobby`, response)
+          socket.log(
+            "channel:timeout",
+            `Timeout while joining mirror:lobby`,
+            response,
+          )
         })
 
       return {

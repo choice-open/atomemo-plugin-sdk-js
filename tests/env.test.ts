@@ -18,7 +18,7 @@ const EnvSchema = z.object({
     }),
 })
 
-  describe("env module", () => {
+describe("env module", () => {
   const originalEnv = { ...process.env }
   const originalNodeEnv = process.env.NODE_ENV
 

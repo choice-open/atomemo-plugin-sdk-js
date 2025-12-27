@@ -54,7 +54,13 @@ const mockSocketLog = mock(() => {})
 // Store handlers to test them
 let storedOnOpenHandler: (() => void) | undefined
 let storedOnCloseHandler: ((event: unknown) => void) | undefined
-let storedOnErrorHandler: ((error: unknown, transport?: unknown, establishedConnections?: unknown) => void) | undefined
+let storedOnErrorHandler:
+  | ((
+      error: unknown,
+      transport?: unknown,
+      establishedConnections?: unknown,
+    ) => void)
+  | undefined
 let storedOnMessageHandler: ((message: unknown) => void) | undefined
 
 const mockSocketOnOpen = mock((handler: () => void) => {
@@ -63,9 +69,17 @@ const mockSocketOnOpen = mock((handler: () => void) => {
 const mockSocketOnClose = mock((handler: (event: unknown) => void) => {
   storedOnCloseHandler = handler
 })
-const mockSocketOnError = mock((handler: (error: unknown, transport?: unknown, establishedConnections?: unknown) => void) => {
-  storedOnErrorHandler = handler
-})
+const mockSocketOnError = mock(
+  (
+    handler: (
+      error: unknown,
+      transport?: unknown,
+      establishedConnections?: unknown,
+    ) => void,
+  ) => {
+    storedOnErrorHandler = handler
+  },
+)
 const mockSocketOnMessage = mock((handler: (message: unknown) => void) => {
   storedOnMessageHandler = handler
 })

@@ -3,6 +3,7 @@ import type { Registry } from "./registry"
 
 interface NamedEntity {
   name: I18nText
+  description: I18nText
 }
 
 export interface Provider extends NamedEntity {}

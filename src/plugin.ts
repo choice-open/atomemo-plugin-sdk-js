@@ -57,7 +57,9 @@ export function createPlugin(options: PluginOptions) {
      * sets up signal handlers for graceful shutdown on SIGINT and SIGTERM.
      */
     run: () => {
-      const { channel: _, dispose } = transporter.connect()
+      const { channel, dispose } = transporter.connect()
+
+      channel.push("shout", registry.serialize())
 
       void ["SIGINT", "SIGTERM"].forEach((signal) => {
         void process.on(signal, dispose)
