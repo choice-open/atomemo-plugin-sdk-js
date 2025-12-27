@@ -30,7 +30,7 @@
     "build": "tsdown",
     "check": "biome check --write",
     "dev": "tsdown --watch",
-    "test": "vitest",
+    "test": "bun test --dots",
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "bun run build"
   },
