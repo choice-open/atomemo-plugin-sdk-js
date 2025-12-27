@@ -61,6 +61,15 @@ export function createPlugin(options: PluginOptions) {
 
       channel.push("shout", registry.serialize())
 
+      channel.on("shout", async (message) => {
+        if (message.providerName && message.featureName) {
+          const { providerName, featureName } = message
+          const feature = registry.resolve("tool", providerName, featureName)
+          const response = await feature.invoke.apply(null, message.args)
+          console.debug(Bun.inspect(response, { colors: true }))
+        }
+      })
+
       void ["SIGINT", "SIGTERM"].forEach((signal) => {
         void process.on(signal, dispose)
       })

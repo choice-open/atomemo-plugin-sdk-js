@@ -100,7 +100,6 @@ export function createRegistry(): Registry {
     },
 
     serialize: () => {
-      console.debug(Bun.inspect(store, { colors: true, depth: 5 }))
       // biome-ignore lint/suspicious/noExplicitAny: Type is not critical for serialized data
       return Array.from(store.provider.values()).reduce<Record<string, any>>(
         (finale, provider) =>

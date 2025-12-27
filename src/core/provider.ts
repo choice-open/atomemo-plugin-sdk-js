@@ -8,7 +8,10 @@ interface NamedEntity {
 
 export interface Provider extends NamedEntity {}
 
-export interface Feature extends NamedEntity {}
+export interface Feature extends NamedEntity {
+  // biome-ignore lint/suspicious/noExplicitAny: Any is OK for the invoke function
+  invoke: (context: any) => Promise<any>
+}
 
 export interface ProviderManager {
   /**
