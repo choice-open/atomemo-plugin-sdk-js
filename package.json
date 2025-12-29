@@ -18,6 +18,10 @@
       "development": "./src/index.ts",
       "default": "./dist/index.js"
     },
+    "./types": {
+      "development": "./src/types.ts",
+      "default": "./dist/types.js"
+    },
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",
@@ -65,6 +69,7 @@
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
+      "./types": "./dist/types.js",
       "./package.json": "./package.json"
     }
   },
