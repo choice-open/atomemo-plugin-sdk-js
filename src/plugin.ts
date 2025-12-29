@@ -1,3 +1,5 @@
+import chalk from "chalk"
+import { logger } from "./core/logger"
 import {
   createProvider,
   type Provider,
@@ -11,16 +13,18 @@ export interface I18nText {
   [key: string]: string | undefined
 }
 
-interface PluginOptions {
+interface PluginOptions<Locales> {
   /**
    * The locales to support. Defaults to ["en_US"] and "en_US" is required.
    */
-  locales: string[]
+  locales: Locales
   /**
    * The options for the transporter.
    */
   transporterOptions?: TransporterOptions
 }
+
+const log = logger.child({ name: "Phoenix" })
 
 /**
  * Creates a new plugin instance with the specified options.
@@ -37,7 +41,9 @@ interface PluginOptions {
  *   Starts the plugin's main process by establishing a transporter connection and
  *   setting up signal handlers (SIGINT, SIGTERM) for graceful shutdown.
  */
-export function createPlugin(options: PluginOptions) {
+export function createPlugin<Locales extends string[]>(
+  options: PluginOptions<Locales>,
+) {
   const registry = createRegistry()
   const transporter = createTransporter(options.transporterOptions)
 
@@ -66,7 +72,9 @@ export function createPlugin(options: PluginOptions) {
           const { providerName, featureName } = message
           const feature = registry.resolve("tool", providerName, featureName)
           const response = await feature.invoke.apply(null, message.args)
-          console.debug(Bun.inspect(response, { colors: true }))
+
+          const data = chalk.blueBright(JSON.stringify(response, null, 2))
+          log.trace(`${providerName}-${featureName} response:\n${data}`)
         }
       })
 

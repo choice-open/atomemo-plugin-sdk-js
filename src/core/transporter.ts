@@ -24,12 +24,10 @@ export function createTransporter(options: TransporterOptions = {}) {
     heartbeatIntervalMs: options.heartbeatIntervalMs ?? 30 * 1000,
     logger(kind, message, data) {
       const timestamp = chalk.bgGrey(` ${new Date().toLocaleString()} `)
-      const formattedKind = chalk.underline.bold.yellow(kind.toUpperCase())
+      const coloredKind = chalk.underline.bold.yellow(kind.toUpperCase())
+      const coloredMessage = chalk.italic.dim(message)
       const inspection = data ? Bun.inspect(data, { colors: true }) : ""
-      console.debug(
-        `${timestamp} ${formattedKind} ${chalk.italic.dim(message)}`,
-        inspection,
-      )
+      console.debug(`${timestamp} ${coloredKind} ${coloredMessage}`, inspection)
     },
   })
 
@@ -63,21 +61,13 @@ export function createTransporter(options: TransporterOptions = {}) {
       channel
         .join()
         .receive("ok", (response) => {
-          socket.log(
-            "channel:joined",
-            `Joined mirror:lobby successfully`,
-            response,
-          )
+          socket.log("channel:joined", `Joined successfully`, response)
         })
         .receive("error", (response) => {
-          socket.log("channel:error", `Failed to join mirror:lobby`, response)
+          socket.log("channel:error", `Failed to join`, response)
         })
         .receive("timeout", (response) => {
-          socket.log(
-            "channel:timeout",
-            `Timeout while joining mirror:lobby`,
-            response,
-          )
+          socket.log("channel:timeout", `Timeout while joining`, response)
         })
 
       return {
