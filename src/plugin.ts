@@ -31,15 +31,6 @@ const log = logger.child({ name: "Phoenix" })
  *
  * @param options - The options for configuring the plugin instance.
  * @returns An object containing methods to define providers and run the plugin process.
- *
- * @property defineProvider
- *   Defines and registers a new provider within the plugin registry.
- *   @param provider - The provider to define.
- *   @returns An object implementing ProviderManager, allowing adding features to the provider.
- *
- * @property run
- *   Starts the plugin's main process by establishing a transporter connection and
- *   setting up signal handlers (SIGINT, SIGTERM) for graceful shutdown.
  */
 export function createPlugin<Locales extends string[]>(
   options: PluginOptions<Locales>,

@@ -8,8 +8,7 @@ import { serializeFeature } from "./serialize-feature"
  * Map-based feature collections using serializeFeature.
  *
  * @param provider - The ProviderStore object to serialize.
- * @returns An object with only serializable, non-function properties,
- *          and denormalized feature maps.
+ * @returns An object with only serializable, non-function properties, and denormalized feature maps.
  */
 export const serializeProvider = (provider: ProviderStore) => {
   // biome-ignore lint/suspicious/noExplicitAny: Type is not critical for serialized data
