@@ -1,4 +1,5 @@
 import type { LiteralUnion } from "type-fest"
+import type { NodeProperty } from "./node-property.type"
 
 /**
  * I18n 词条
@@ -31,11 +32,11 @@ export interface BaseDefinition {
   /**
    * 参数
    */
-  parameters: unknown[]
+  parameters: NodeProperty[]
   /**
    * 设置
    */
-  settings?: unknown[]
+  settings?: NodeProperty[]
   /**
    * 凭证
    * 如果此功能在运行时需要校验凭证，则需要在此处指定凭证名称

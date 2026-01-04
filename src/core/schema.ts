@@ -2,6 +2,7 @@ import { isPlainObject } from "es-toolkit/predicate"
 import type { IsEqual } from "type-fest"
 import { z } from "zod"
 import type { BaseDefinition, CredentialDefinition, I18nText, ToolDefinition } from "../types"
+import { NodePropertySchema } from "./node-property.schema"
 
 /**
  * I18n 词条模式
@@ -43,10 +44,8 @@ export const BaseDefinitionSchema = z.object({
   description: I18nEntrySchema,
   icon: z.union([z.string(), z.instanceof(URL)]),
   credentials: z.array(z.object({ name: z.string(), parameter_name: z.string() })).optional(),
-  // TODO: 待补充
-  parameters: z.array(z.unknown()),
-  // TODO: 待补充
-  settings: z.array(z.unknown()).optional(),
+  parameters: z.array(NodePropertySchema),
+  settings: z.array(NodePropertySchema).optional(),
 })
 {
   const _: IsEqual<z.infer<typeof BaseDefinitionSchema>, BaseDefinition> = true
