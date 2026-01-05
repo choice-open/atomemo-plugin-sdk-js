@@ -1,5 +1,5 @@
 import type { JsonObject, JsonValue } from "type-fest"
-import type { I18nText } from "./denifition"
+import type { I18nText } from "./definition"
 import type {
   NodePropertyUIArray,
   NodePropertyUIBoolean,
