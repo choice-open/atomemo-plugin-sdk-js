@@ -13,7 +13,6 @@ import type {
   NodePropertyObject,
   NodePropertyString,
 } from "../node-property.type"
-import type { NodePropertyUINumber } from "../node-property-ui.type"
 import {
   NodePropertyUIArraySchema,
   NodePropertyUIBooleanSchema,
@@ -100,13 +99,12 @@ const NodePropertyStringSchema = NodePropertyBaseSchema.extend({
   constant: z.string().optional(),
   default: z.string().optional(),
   enum: z.array(z.string()).optional(),
+  max_length: z.number().optional(),
+  min_length: z.number().optional(),
   ui: NodePropertyUIStringSchema.optional(),
 })
 {
-  const _: IsEqual<
-    z.infer<typeof NodePropertyStringSchema>,
-    NodePropertyString<string, boolean>
-  > = true
+  const _: IsEqual<z.infer<typeof NodePropertyStringSchema>, NodePropertyString<string>> = true
 }
 
 const NodePropertyNumberSchema = NodePropertyBaseSchema.extend({
@@ -114,13 +112,12 @@ const NodePropertyNumberSchema = NodePropertyBaseSchema.extend({
   constant: z.number().optional(),
   default: z.number().optional(),
   enum: z.array(z.number()).optional(),
+  maximum: z.number().optional(),
+  minimum: z.number().optional(),
   ui: NodePropertyUINumberSchema.optional(),
 })
 {
-  const _: IsEqual<
-    z.infer<typeof NodePropertyNumberSchema>,
-    NodePropertyNumber<string, false>
-  > = true
+  const _: IsEqual<z.infer<typeof NodePropertyNumberSchema>, NodePropertyNumber<string>> = true
 }
 
 const NodePropertyBooleanSchema = NodePropertyBaseSchema.extend({
@@ -131,10 +128,7 @@ const NodePropertyBooleanSchema = NodePropertyBaseSchema.extend({
   ui: NodePropertyUIBooleanSchema.optional(),
 })
 {
-  const _: IsEqual<
-    z.infer<typeof NodePropertyBooleanSchema>,
-    NodePropertyBoolean<string, false>
-  > = true
+  const _: IsEqual<z.infer<typeof NodePropertyBooleanSchema>, NodePropertyBoolean<string>> = true
 }
 
 // use type assertion and lazy to avoid circular reference error
@@ -226,6 +220,8 @@ const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
   default: z.array(JsonValueSchema).optional(),
   enum: z.array(z.array(JsonValueSchema)).optional(),
   items: itemsSchema,
+  max_items: z.number().optional(),
+  min_items: z.number().optional(),
   ui: NodePropertyUIArraySchema.optional(),
 })
 {

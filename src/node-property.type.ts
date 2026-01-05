@@ -80,58 +80,47 @@ export interface NodePropertyBase<TName extends string = string> {
     llm_description?: I18nText
   }
   ui?: NodePropertyUICommonProps
-  // TODO: add validation
 }
 
-// TODO: string use template literal to match ={{}}
-// TODO: for different types of properties, expression string has different syntax
-
-type ExpressionValue<T extends boolean = false> = T extends true ? string : never
-
-export interface NodePropertyString<
-  TName extends string = string,
-  TSupportExpr extends boolean = false,
-> extends NodePropertyBase<TName> {
+export interface NodePropertyString<TName extends string = string> extends NodePropertyBase<TName> {
   type: "string"
-  constant?: string | ExpressionValue<TSupportExpr>
-  default?: string | ExpressionValue<TSupportExpr>
-  enum?: Array<string | ExpressionValue<TSupportExpr>>
+  constant?: string
+  default?: string
+  enum?: Array<string>
+  max_length?: number
+  min_length?: number
   ui?: NodePropertyUIString
 }
 
-export interface NodePropertyNumber<
-  TName extends string = string,
-  TSupportExpr extends boolean = false,
-> extends NodePropertyBase<TName> {
+export interface NodePropertyNumber<TName extends string = string> extends NodePropertyBase<TName> {
   type: "number" | "integer"
-  constant?: number | ExpressionValue<TSupportExpr>
-  default?: number | ExpressionValue<TSupportExpr>
-  enum?: Array<number | ExpressionValue<TSupportExpr>>
+  constant?: number
+  default?: number
+  enum?: Array<number>
+  maximum?: number
+  minimum?: number
   ui?: NodePropertyUINumber
 }
 
-export interface NodePropertyBoolean<
-  TName extends string = string,
-  TSupportExpr extends boolean = false,
-> extends NodePropertyBase<TName> {
+export interface NodePropertyBoolean<TName extends string = string>
+  extends NodePropertyBase<TName> {
   type: "boolean"
-  constant?: boolean | ExpressionValue<TSupportExpr>
-  default?: boolean | ExpressionValue<TSupportExpr>
-  enum?: Array<boolean | ExpressionValue<TSupportExpr>>
+  constant?: boolean
+  default?: boolean
+  enum?: Array<boolean>
   ui?: NodePropertyUIBoolean
 }
 
 export interface NodePropertyObject<
   TName extends string = string,
-  TSupportExpr extends boolean = false,
   TValue extends Record<string, JsonValue> = Record<string, JsonValue>,
 > extends NodePropertyBase<TName> {
   type: "object"
-  properties: Array<NodeProperty<keyof TValue extends string ? keyof TValue : never, TSupportExpr>>
-  constant?: TValue | ExpressionValue<TSupportExpr>
-  default?: TValue | ExpressionValue<TSupportExpr>
-  enum?: Array<TValue | ExpressionValue<TSupportExpr>>
-  ui?: NodePropertyUIObject<TSupportExpr>
+  properties: Array<NodeProperty<keyof TValue extends string ? keyof TValue : never>>
+  constant?: TValue
+  default?: TValue
+  enum?: Array<TValue>
+  ui?: NodePropertyUIObject
 }
 
 export type ArrayDiscriminatedItems<
@@ -145,7 +134,6 @@ export type ArrayDiscriminatedItems<
   anyOf: Array<
     NodePropertyObject<
       string,
-      false,
       Record<string, JsonValue> & {
         [K in TDiscriminator]: TDiscriminatorValue
       }
@@ -162,27 +150,22 @@ export type ArrayDiscriminatedItems<
     | NodePropertyUIRadioGroupProps
 }
 
-export interface NodePropertyArray<
-  TName extends string = string,
-  TSupportExpr extends boolean = false,
-> extends NodePropertyBase<TName> {
+export interface NodePropertyArray<TName extends string = string> extends NodePropertyBase<TName> {
   type: "array"
-  constant?: Array<JsonValue> | ExpressionValue<TSupportExpr>
-  default?: Array<JsonValue> | ExpressionValue<TSupportExpr>
-  enum?: Array<Array<JsonValue> | ExpressionValue<TSupportExpr>>
+  constant?: Array<JsonValue>
+  default?: Array<JsonValue>
+  enum?: Array<Array<JsonValue>>
   items:
     | NodeProperty // most common case, array of uniform items
     | ArrayDiscriminatedItems // discriminated union case, used for polymorphic array items
+  max_items?: number
+  min_items?: number
   ui?: NodePropertyUIArray
 }
 
-export type NodeProperty<
-  TName extends string = string,
-  TSupportExpr extends boolean = false,
-  TValue extends JsonValue = JsonValue,
-> =
-  | NodePropertyArray<TName, TSupportExpr>
-  | NodePropertyObject<TName, TSupportExpr, TValue extends JsonObject ? TValue : JsonObject>
-  | NodePropertyString<TName, TSupportExpr>
-  | NodePropertyBoolean<TName, TSupportExpr>
-  | NodePropertyNumber<TName, TSupportExpr>
+export type NodeProperty<TName extends string = string, TValue extends JsonValue = JsonValue> =
+  | NodePropertyArray<TName>
+  | NodePropertyObject<TName, TValue extends JsonObject ? TValue : JsonObject>
+  | NodePropertyString<TName>
+  | NodePropertyBoolean<TName>
+  | NodePropertyNumber<TName>
