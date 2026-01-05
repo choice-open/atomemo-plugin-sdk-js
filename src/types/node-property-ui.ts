@@ -145,13 +145,6 @@ interface NodePropertyUICredentialSelectProps extends NodePropertyUICommonProps 
   searchable?: boolean
 }
 
-/** 模型选择器 UI 属性 */
-interface NodePropertyUIModelSelectorProps extends NodePropertyUICommonProps {
-  clearable?: boolean
-  component: "model-selector"
-  searchable?: boolean
-}
-
 /** JSON Schema 编辑器 UI 属性 */
 interface NodePropertyUIJsonSchemaEditorProps extends NodePropertyUICommonProps {
   component: "json-schema-editor"
@@ -209,7 +202,6 @@ export type NodePropertyUIProps =
   | NodePropertyUIKeyValueEditorProps
   | NodePropertyUITagInputProps
   | NodePropertyUICredentialSelectProps
-  | NodePropertyUIModelSelectorProps
   | NodePropertyUIJsonSchemaEditorProps
   | NodePropertyUIConditionsEditorProps
   | NodePropertyUIVariablesSchemaSectionProps
@@ -230,7 +222,6 @@ export type NodePropertyUIString =
   | NodePropertyUICodeEditorProps
   | NodePropertyUISingleSelectProps
   | NodePropertyUICredentialSelectProps
-  | NodePropertyUIModelSelectorProps
   | NodePropertyUIRadioGroupProps
 
 export type NodePropertyUIArray =

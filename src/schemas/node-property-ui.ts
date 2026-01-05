@@ -169,13 +169,6 @@ const NodePropertyUICredentialSelectPropsSchema = NodePropertyUICommonPropsSchem
   searchable: z.boolean().optional(),
 })
 
-// Model selector component schema
-const NodePropertyUIModelSelectorPropsSchema = NodePropertyUICommonPropsSchema.extend({
-  clearable: z.boolean().optional(),
-  component: z.literal("model-selector"),
-  searchable: z.boolean().optional(),
-})
-
 // JSON Schema editor component schema
 const NodePropertyUIJsonSchemaEditorPropsSchema = NodePropertyUICommonPropsSchema.extend({
   component: z.literal("json-schema-editor"),
@@ -244,7 +237,6 @@ export const NodePropertyUIPropsSchema = z.discriminatedUnion("type", [
   NodePropertyUIKeyValueEditorPropsSchema,
   NodePropertyUITagInputPropsSchema,
   NodePropertyUICredentialSelectPropsSchema,
-  NodePropertyUIModelSelectorPropsSchema,
   NodePropertyUIJsonSchemaEditorPropsSchema,
   NodePropertyUIConditionsEditorPropsSchema,
   NodePropertyUIVariablesSchemaSectionPropsSchema,
@@ -279,7 +271,6 @@ export const NodePropertyUIStringSchema = z.discriminatedUnion("component", [
   NodePropertyUICodeEditorPropsSchema,
   NodePropertyUISingleSelectPropsSchema,
   NodePropertyUICredentialSelectPropsSchema,
-  NodePropertyUIModelSelectorPropsSchema,
   NodePropertyUIRadioGroupPropsSchema,
 ])
 {
@@ -313,7 +304,10 @@ export const NodePropertyUICredentialIdSchema = z.discriminatedUnion("component"
   NodePropertyUICredentialSelectPropsSchema,
 ])
 {
-  const _: IsEqual<z.infer<typeof NodePropertyUICredentialIdSchema>, NodePropertyUICredentialId> = true
+  const _: IsEqual<
+    z.infer<typeof NodePropertyUICredentialIdSchema>,
+    NodePropertyUICredentialId
+  > = true
 }
 export const NodePropertyUIDiscriminatorUISchema = z.discriminatedUnion("component", [
   NodePropertyUISwitchPropsSchema,
