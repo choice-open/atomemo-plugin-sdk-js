@@ -74,9 +74,27 @@ const NodePropertyBaseSchema = z.object({
   name: z
     .string()
     .min(1, "name cannot be empty")
-    .refine((val) => !val.startsWith("$"), {
-      error: "name cannot start with $",
-    }),
+    .refine(
+      (val) => {
+        const regexStartsWithDollarOrWhitespace = /^[\s$]/
+        return !regexStartsWithDollarOrWhitespace.test(val)
+      },
+      {
+        error: "name cannot start with $ or whitespace",
+        abort: true,
+      },
+    )
+    .refine(
+      (val) => {
+        const forbiddenCharacters = [".", "[", "]"]
+        return !forbiddenCharacters.some((char) => val.includes(char))
+      },
+      {
+        error: 'name cannot contain ".", "[", or "]" characters',
+        abort: true,
+      },
+    ),
+
   display_name: I18nEntrySchema.optional(),
   required: z.boolean().optional(),
   constant: JsonValueSchema.optional(),
