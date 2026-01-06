@@ -204,7 +204,9 @@ export interface NodePropertyObject<
   /**
    * Child properties of the object
    */
-  properties: Array<NodeProperty<keyof TValue extends string ? keyof TValue : never>>
+  properties: Array<
+    NodeProperty<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
+  >
   constant?: TValue | ExpressionValue
   default?: TValue | ExpressionValue
   enum?: Array<TValue | ExpressionValue>

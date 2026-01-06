@@ -198,9 +198,8 @@ const NodePropertyBooleanSchema = NodePropertyBaseSchema.extend({
   const _: IsEqual<z.infer<typeof NodePropertyBooleanSchema>, NodePropertyBoolean<string>> = true
 }
 
-// use type assertion and lazy to avoid circular reference error
-const PropertiesSchema: z.ZodType<Array<NodeProperty>> = z.lazy(() =>
-  z.array(NodePropertySchema).refine(
+function setDuplicatePropertyNamesCheck<T extends z.ZodType<Array<NodeProperty>>>(schema: T) {
+  return schema.refine(
     (properties) => {
       const names = new Set<string>()
       for (const prop of properties) {
@@ -212,7 +211,12 @@ const PropertiesSchema: z.ZodType<Array<NodeProperty>> = z.lazy(() =>
     {
       error: "duplicate property names are not allowed",
     },
-  ),
+  )
+}
+
+// use type assertion and lazy to avoid circular reference error
+const PropertiesSchema: z.ZodType<Array<NodeProperty>> = z.lazy(() =>
+  z.array(NodePropertySchema).apply(setDuplicatePropertyNamesCheck),
 )
 
 const NodePropertyObjectSchema = NodePropertyBaseSchema.extend({
@@ -308,7 +312,7 @@ const NodePropertyCredentialIdSchema = NodePropertyBaseSchema.extend({
   > = true
 }
 
-export const NodePropertySchema = z.union([
+const NodePropertySchema = z.union([
   NodePropertyStringSchema,
   NodePropertyBooleanSchema,
   NodePropertyNumberSchema,
@@ -319,3 +323,7 @@ export const NodePropertySchema = z.union([
 {
   const _: IsEqual<z.infer<typeof NodePropertySchema>, NodeProperty> = true
 }
+
+export const NodePropertiesSchema = z
+  .array(NodePropertySchema)
+  .apply(setDuplicatePropertyNamesCheck)

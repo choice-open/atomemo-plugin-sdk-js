@@ -9,7 +9,7 @@ import type {
   PluginDefinition,
   ToolDefinition,
 } from "../types"
-import { NodePropertySchema } from "./node-property"
+import { NodePropertiesSchema } from "./node-property"
 
 /**
  * I18n 词条模式
@@ -50,8 +50,8 @@ export const BaseDefinitionSchema = z.object({
   display_name: I18nEntrySchema,
   description: I18nEntrySchema,
   icon: z.string(),
-  parameters: z.array(NodePropertySchema),
-  settings: z.array(NodePropertySchema).optional(),
+  parameters: NodePropertiesSchema,
+  settings: NodePropertiesSchema.optional(),
 })
 {
   const _: IsEqual<z.infer<typeof BaseDefinitionSchema>, BaseDefinition> = true
