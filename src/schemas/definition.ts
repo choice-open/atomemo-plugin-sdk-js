@@ -83,7 +83,7 @@ export const DataSourceDefinitionSchema = z.object({
 export type DataSourceDefinition = z.infer<typeof DataSourceDefinitionSchema>
 
 export const ModelDefinitionSchema = z.object({
-  ...BaseDefinitionSchema.shape,
+  ...BaseDefinitionSchema.omit({ parameters: true, settings: true }).shape,
   type: z.literal("model"),
   name: z.string().refine(
     (value) => {
@@ -93,6 +93,7 @@ export const ModelDefinitionSchema = z.object({
     { error: "Invalid model name, should be in the format of `model_provider/model_name`" },
   ),
   model_type: z.literal("llm"),
+  default_endpoint: z.string().optional(),
   context_window: z.number(),
   input_modalities: z.array(z.enum(["file", "image", "text"])),
   output_modalities: z.array(z.enum(["text"])),
@@ -106,26 +107,31 @@ export const ModelDefinitionSchema = z.object({
       request: z.number().optional(),
     })
     .optional(),
-  supported_parameters: z.array(
+  unsupported_parameters: z.array(
     z.enum([
+      "endpoint",
       "temperature",
-      "top_p",
-      "top_k",
+      // "top_p",
+      // "top_k",
       "frequency_penalty",
-      "presence_penalty",
-      "repetition_penalty",
-      "min_p",
-      "top_a",
+      // "presence_penalty",
+      // "repetition_penalty",
+      // "min_p",
+      // "top_a",
       "seed",
       "max_tokens",
-      "logit_bias",
-      "logprobs",
-      "top_logprobs",
-      "response_format",
+      // "logit_bias",
+      // "logprobs",
+      // "top_logprobs",
+      // "response_format",
+      // "json_response",
+      "json_schema",
+      "stream",
+      "stream_options",
       "structured_outputs",
-      "stop",
-      "tools",
-      "tool_choice",
+      // "stop",
+      // "tools",
+      // "tool_choice",
       "parallel_tool_calls",
       "verbosity",
     ]),
