@@ -16,7 +16,11 @@ import { NodePropertiesSchema } from "./node-property"
  * 此为所有功能定义模式的基类，定义了通用的属性，不单独使用
  */
 export const BaseDefinitionSchema = z.object({
-  name: z.string(),
+  // 1. 只能出现英文字母（大小写不敏感）和数字以及_和-
+  // 2. 开头只能是英文字母，结尾不能是_和-
+  // 3. _和-不能连续出现多次
+  // 4. 最小长度 4，最大长度 64
+  name: z.string().regex(/^[a-zA-Z](?:(?![_-]{2,})[a-zA-Z0-9_-]){3,63}[a-zA-Z0-9]$/),
   display_name: I18nEntrySchema,
   description: I18nEntrySchema,
   icon: z.string(),
