@@ -1,4 +1,4 @@
 export * from "./schemas/common"
 export * from "./schemas/definition"
-export * from "./schemas/node-property"
-export * from "./schemas/node-property-ui"
+export * from "./schemas/property"
+export * from "./schemas/property-ui"

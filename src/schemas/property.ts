@@ -5,28 +5,28 @@ import type {
   DiscriminatedUnion,
   DisplayCondition,
   FilterOperators,
-  NodeProperty,
-  NodePropertyArray,
-  NodePropertyBase,
-  NodePropertyBoolean,
-  NodePropertyCredentialId,
-  NodePropertyEncryptedString,
-  NodePropertyNumber,
-  NodePropertyObject,
-  NodePropertyString,
+  Property,
+  PropertyArray,
+  PropertyBase,
+  PropertyBoolean,
+  PropertyCredentialId,
+  PropertyEncryptedString,
+  PropertyNumber,
+  PropertyObject,
+  PropertyString,
 } from "../types"
 import { I18nEntrySchema } from "./common"
 import {
-  NodePropertyUIArraySchema,
-  NodePropertyUIBooleanSchema,
-  NodePropertyUICommonPropsSchema,
-  NodePropertyUICredentialIdSchema,
-  NodePropertyUIDiscriminatorUISchema,
-  NodePropertyUIEncryptedStringSchema,
-  NodePropertyUINumberSchema,
-  NodePropertyUIObjectSchema,
-  NodePropertyUIStringSchema,
-} from "./node-property-ui"
+  PropertyUIArraySchema,
+  PropertyUIBooleanSchema,
+  PropertyUICommonPropsSchema,
+  PropertyUICredentialIdSchema,
+  PropertyUIDiscriminatorUISchema,
+  PropertyUIEncryptedStringSchema,
+  PropertyUINumberSchema,
+  PropertyUIObjectSchema,
+  PropertyUIStringSchema,
+} from "./property-ui"
 
 const JsonPrimitiveSchema = z.union([z.string(), z.number(), z.boolean(), z.null()])
 const JsonValueSchema: z.ZodType<JsonValue> = z.lazy(() =>
@@ -72,7 +72,7 @@ const FilterSchema: z.ZodType<DisplayCondition> = z.union([
   RootFilterSchema,
 ])
 
-const NodePropertyBaseSchema = z.object({
+const PropertyBaseSchema = z.object({
   name: z
     .string()
     .min(1, "name cannot be empty")
@@ -113,10 +113,10 @@ const NodePropertyBaseSchema = z.object({
       llm_description: I18nEntrySchema.optional(),
     })
     .optional(),
-  ui: NodePropertyUICommonPropsSchema.optional(),
+  ui: PropertyUICommonPropsSchema.optional(),
 })
 {
-  const _: IsEqual<z.infer<typeof NodePropertyBaseSchema>, NodePropertyBase<string>> = true
+  const _: IsEqual<z.infer<typeof PropertyBaseSchema>, PropertyBase<string>> = true
 }
 
 // const expressionSchema = z.custom<string>((val) => {
@@ -129,7 +129,7 @@ const NodePropertyBaseSchema = z.object({
  * check that constant, default, and enum must not contain expression values
  * if ui.support_expression is not true
  */
-// function setExpressionValueCheck<T extends z.ZodType<NodeProperty>>(schema: T) {
+// function setExpressionValueCheck<T extends z.ZodType<Property>>(schema: T) {
 //   return schema.refine(
 //     (obj) => {
 //       if (obj.ui?.support_expression) return true
@@ -163,44 +163,44 @@ const NodePropertyBaseSchema = z.object({
 //   )
 // }
 
-const NodePropertyStringSchema = NodePropertyBaseSchema.extend({
+const PropertyStringSchema = PropertyBaseSchema.extend({
   type: z.literal("string"),
   constant: z.string().optional(),
   default: z.string().optional(),
   enum: z.array(z.string()).optional(),
   max_length: z.number().optional(),
   min_length: z.number().optional(),
-  ui: NodePropertyUIStringSchema.optional(),
+  ui: PropertyUIStringSchema.optional(),
 })
 {
-  const _: IsEqual<z.infer<typeof NodePropertyStringSchema>, NodePropertyString<string>> = true
+  const _: IsEqual<z.infer<typeof PropertyStringSchema>, PropertyString<string>> = true
 }
 
-const NodePropertyNumberSchema = NodePropertyBaseSchema.extend({
+const PropertyNumberSchema = PropertyBaseSchema.extend({
   type: z.union([z.literal("number"), z.literal("integer")]),
   constant: z.number().optional(),
   default: z.number().optional(),
   enum: z.array(z.number()).optional(),
   maximum: z.number().optional(),
   minimum: z.number().optional(),
-  ui: NodePropertyUINumberSchema.optional(),
+  ui: PropertyUINumberSchema.optional(),
 })
 {
-  const _: IsEqual<z.infer<typeof NodePropertyNumberSchema>, NodePropertyNumber<string>> = true
+  const _: IsEqual<z.infer<typeof PropertyNumberSchema>, PropertyNumber<string>> = true
 }
 
-const NodePropertyBooleanSchema = NodePropertyBaseSchema.extend({
+const PropertyBooleanSchema = PropertyBaseSchema.extend({
   type: z.literal("boolean"),
   constant: z.boolean().optional(),
   default: z.boolean().optional(),
   enum: z.array(z.boolean()).optional(),
-  ui: NodePropertyUIBooleanSchema.optional(),
+  ui: PropertyUIBooleanSchema.optional(),
 })
 {
-  const _: IsEqual<z.infer<typeof NodePropertyBooleanSchema>, NodePropertyBoolean<string>> = true
+  const _: IsEqual<z.infer<typeof PropertyBooleanSchema>, PropertyBoolean<string>> = true
 }
 
-function setDuplicatePropertyNamesCheck<T extends z.ZodType<Array<NodeProperty>>>(schema: T) {
+function setDuplicatePropertyNamesCheck<T extends z.ZodType<Array<Property>>>(schema: T) {
   return schema.refine(
     (properties) => {
       const names = new Set<string>()
@@ -217,31 +217,31 @@ function setDuplicatePropertyNamesCheck<T extends z.ZodType<Array<NodeProperty>>
 }
 
 // use type assertion and lazy to avoid circular reference error
-const PropertiesSchema: z.ZodType<Array<NodeProperty>> = z.lazy(() =>
-  z.array(NodePropertySchema).apply(setDuplicatePropertyNamesCheck),
+const ArrayPropertiesSchema: z.ZodType<Array<Property>> = z.lazy(() =>
+  z.array(PropertySchema).apply(setDuplicatePropertyNamesCheck),
 )
 
-const NodePropertyObjectSchema = NodePropertyBaseSchema.extend({
+const PropertyObjectSchema = PropertyBaseSchema.extend({
   type: z.literal("object"),
-  properties: PropertiesSchema,
+  properties: ArrayPropertiesSchema,
   constant: z.record(z.string(), JsonValueSchema).optional(),
   default: z.record(z.string(), JsonValueSchema).optional(),
   enum: z.array(z.record(z.string(), JsonValueSchema)).optional(),
-  ui: NodePropertyUIObjectSchema.optional(),
+  ui: PropertyUIObjectSchema.optional(),
 })
 {
-  type NodePropertyObjectInferred = z.infer<typeof NodePropertyObjectSchema>
-  const _: IsEqual<NodePropertyObjectInferred, NodePropertyObject> = true
+  type PropertyObjectInferred = z.infer<typeof PropertyObjectSchema>
+  const _: IsEqual<PropertyObjectInferred, PropertyObject> = true
 }
 
 const DiscriminatedUnionSchema = z
   .object({
     type: z.literal("discriminated_union"),
     get any_of() {
-      return z.array(NodePropertyObjectSchema).min(2, "anyOf must have at least two items")
+      return z.array(PropertyObjectSchema).min(2, "anyOf must have at least two items")
     },
     discriminator: z.string().min(1, "discriminator cannot be empty"),
-    discriminator_ui: NodePropertyUIDiscriminatorUISchema.optional(),
+    discriminator_ui: PropertyUIDiscriminatorUISchema.optional(),
   })
   .refine(
     (v) => {
@@ -288,12 +288,12 @@ const DiscriminatedUnionSchema = z
   const _: IsEqual<z.infer<typeof schema>, Omit<DiscriminatedUnion, "any_of">> = true
 }
 
-const ItemsSchema: z.ZodType<NodeProperty | DiscriminatedUnion> = z.lazy(() =>
+const ItemsSchema: z.ZodType<Property | DiscriminatedUnion> = z.lazy(() =>
   // use type assertion because of generic type plus recursive structure
-  z.union([NodePropertySchema, DiscriminatedUnionSchema as z.ZodType<DiscriminatedUnion>]),
+  z.union([PropertySchema, DiscriminatedUnionSchema as z.ZodType<DiscriminatedUnion>]),
 )
 
-const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
+const PropertyArraySchema = PropertyBaseSchema.extend({
   type: z.literal("array"),
   constant: z.array(JsonValueSchema).optional(),
   default: z.array(JsonValueSchema).optional(),
@@ -301,48 +301,40 @@ const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
   items: ItemsSchema,
   max_items: z.number().optional(),
   min_items: z.number().optional(),
-  ui: NodePropertyUIArraySchema.optional(),
+  ui: PropertyUIArraySchema.optional(),
 })
 {
-  const _: IsEqual<z.infer<typeof NodePropertyArraySchema>, NodePropertyArray> = true
+  const _: IsEqual<z.infer<typeof PropertyArraySchema>, PropertyArray> = true
 }
 
-const NodePropertyCredentialIdSchema = NodePropertyBaseSchema.extend({
+const PropertyCredentialIdSchema = PropertyBaseSchema.extend({
   type: z.literal("credential_id"),
   credential_name: z.string().min(1, "credential_name cannot be empty"),
-  ui: NodePropertyUICredentialIdSchema.optional(),
+  ui: PropertyUICredentialIdSchema.optional(),
 })
 
 {
-  const _: IsEqual<
-    z.infer<typeof NodePropertyCredentialIdSchema>,
-    NodePropertyCredentialId<string>
-  > = true
+  const _: IsEqual<z.infer<typeof PropertyCredentialIdSchema>, PropertyCredentialId<string>> = true
 }
-const NodePropertyEncryptedStringSchema = NodePropertyBaseSchema.extend({
+const PropertyEncryptedStringSchema = PropertyBaseSchema.extend({
   type: z.literal("encrypted_string"),
-  ui: NodePropertyUIEncryptedStringSchema.optional(),
+  ui: PropertyUIEncryptedStringSchema.optional(),
 })
 {
-  const _: IsEqual<
-    z.infer<typeof NodePropertyEncryptedStringSchema>,
-    NodePropertyEncryptedString
-  > = true
+  const _: IsEqual<z.infer<typeof PropertyEncryptedStringSchema>, PropertyEncryptedString> = true
 }
 
-const NodePropertySchema = z.union([
-  NodePropertyStringSchema,
-  NodePropertyBooleanSchema,
-  NodePropertyNumberSchema,
-  NodePropertyArraySchema,
-  NodePropertyObjectSchema,
-  NodePropertyCredentialIdSchema,
-  NodePropertyEncryptedStringSchema,
+const PropertySchema = z.union([
+  PropertyStringSchema,
+  PropertyBooleanSchema,
+  PropertyNumberSchema,
+  PropertyArraySchema,
+  PropertyObjectSchema,
+  PropertyCredentialIdSchema,
+  PropertyEncryptedStringSchema,
 ])
 {
-  const _: IsEqual<z.infer<typeof NodePropertySchema>, NodeProperty> = true
+  const _: IsEqual<z.infer<typeof PropertySchema>, Property> = true
 }
 
-export const NodePropertiesSchema = z
-  .array(NodePropertySchema)
-  .apply(setDuplicatePropertyNamesCheck)
+export const PropertiesSchema = z.array(PropertySchema).apply(setDuplicatePropertyNamesCheck)

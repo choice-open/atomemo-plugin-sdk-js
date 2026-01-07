@@ -1,0 +1,326 @@
+import type { IsEqual } from "type-fest"
+import { z } from "zod"
+import type {
+  PropertyUIArray,
+  PropertyUIArraySectionProps,
+  PropertyUIBoolean,
+  PropertyUICollapsiblePanelProps,
+  PropertyUICredentialId,
+  PropertyUIEncryptedInputProps,
+  PropertyUIInputProps,
+  PropertyUIKeyValueEditorProps,
+  PropertyUINumber,
+  PropertyUIObject,
+  PropertyUIOption,
+  PropertyUIProps,
+  PropertyUIRadioGroupProps,
+  PropertyUISingleSelectProps,
+  PropertyUIString,
+  PropertyUISwitchProps,
+} from "../types"
+import { I18nEntrySchema } from "./common"
+
+// Common UI properties schema
+export const PropertyUICommonPropsSchema = z.object({
+  disabled: z.boolean().optional(),
+  hint: I18nEntrySchema.optional(),
+  placeholder: I18nEntrySchema.optional(),
+  readonly: z.boolean().optional(),
+  sensitive: z.boolean().optional(),
+  support_expression: z.boolean().optional(),
+  width: z.enum(["small", "medium", "full"]).optional(),
+})
+
+// Option schema for select components
+export const PropertyUIOptionSchema = z.object({
+  icon: z.string().optional(),
+  label: I18nEntrySchema,
+  value: z.union([z.string(), z.number(), z.boolean()]),
+})
+{
+  const _: IsEqual<z.infer<typeof PropertyUIOptionSchema>, PropertyUIOption> = true
+}
+
+const PropertyUIInputPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("input"),
+})
+{
+  const _: IsEqual<z.infer<typeof PropertyUIInputPropsSchema>, PropertyUIInputProps> = true
+}
+
+export const PropertyUIEncryptedInputPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("encrypted-input"),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof PropertyUIEncryptedInputPropsSchema>,
+    PropertyUIEncryptedInputProps
+  > = true
+}
+
+// Textarea component schema
+const PropertyUITextareaPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("textarea"),
+  max_height: z.number().optional(),
+  min_height: z.number().optional(),
+})
+
+// Expression input component schema
+const PropertyUIExpressionInputPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.enum(["expression-input", "expression-textarea"]),
+  max_height: z.number().optional(),
+  min_height: z.number().optional(),
+})
+
+// Number input component schema
+const PropertyUINumberInputPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("number-input"),
+  step: z.number().optional(),
+  suffix: z.string().optional(),
+})
+
+// Code editor component schema
+const PropertyUICodeEditorPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("code-editor"),
+  language: z.enum(["json", "javascript", "python3", "html"]).optional(),
+  line_numbers: z.boolean().optional(),
+  max_height: z.number().optional(),
+  min_height: z.number().optional(),
+})
+
+// Select base schema
+const PropertyUISelectPropsBaseSchema = z.object({
+  clearable: z.boolean().optional(),
+  options: z.array(PropertyUIOptionSchema).optional(),
+  searchable: z.boolean().optional(),
+})
+
+// Single select component schema
+const PropertyUISingleSelectPropsSchema = PropertyUICommonPropsSchema.merge(
+  PropertyUISelectPropsBaseSchema,
+).extend({
+  component: z.literal("select"),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof PropertyUISingleSelectPropsSchema>,
+    PropertyUISingleSelectProps
+  > = true
+}
+
+// Radio group component schema
+const PropertyUIRadioGroupPropsSchema = PropertyUICommonPropsSchema.merge(
+  PropertyUISelectPropsBaseSchema,
+).extend({
+  component: z.literal("radio-group"),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof PropertyUIRadioGroupPropsSchema>,
+    PropertyUIRadioGroupProps
+  > = true
+}
+
+// Multi select component schema
+const PropertyUIMultiSelectPropsSchema = PropertyUICommonPropsSchema.merge(
+  PropertyUISelectPropsBaseSchema,
+).extend({
+  component: z.literal("multi-select"),
+})
+
+// Switch component schema
+const PropertyUISwitchPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("switch"),
+})
+{
+  const _: IsEqual<z.infer<typeof PropertyUISwitchPropsSchema>, PropertyUISwitchProps> = true
+}
+
+// Checkbox component schema
+const PropertyUICheckboxPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("checkbox"),
+})
+
+// Slider component schema
+const PropertyUISliderPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("slider"),
+  marks: z.record(z.number(), z.string()).optional(),
+  show_value: z.boolean().optional(),
+  step: z.number().optional(),
+})
+
+// Key-value editor component schema
+const PropertyUIKeyValueEditorPropsSchema = PropertyUICommonPropsSchema.extend({
+  add_button_label: I18nEntrySchema.optional(),
+  component: z.literal("key-value-editor"),
+  default_item: z.unknown().optional(),
+  empty_description: I18nEntrySchema.optional(),
+  section_header: I18nEntrySchema.optional(),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof PropertyUIKeyValueEditorPropsSchema>,
+    PropertyUIKeyValueEditorProps
+  > = true
+}
+
+// Tag input component schema
+const PropertyUITagInputPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("tag-input"),
+})
+
+// Credential select component schema
+const PropertyUICredentialSelectPropsSchema = PropertyUICommonPropsSchema.extend({
+  clearable: z.boolean().optional(),
+  component: z.literal("credential-select"),
+  searchable: z.boolean().optional(),
+})
+
+// JSON Schema editor component schema
+const PropertyUIJsonSchemaEditorPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("json-schema-editor"),
+})
+
+// Conditions editor component schema
+const PropertyUIConditionsEditorPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("conditions-editor"),
+})
+
+// Variables schema section component schema
+const PropertyUIVariablesSchemaSectionPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("variables-schema-section"),
+})
+
+// Variables values section component schema
+const PropertyUIVariablesValuesSectionPropsSchema = PropertyUICommonPropsSchema.extend({
+  component: z.literal("variables-values-section"),
+})
+
+// Array section component schema
+const PropertyUIArraySectionPropsSchema = PropertyUICommonPropsSchema.extend({
+  add_label: I18nEntrySchema.optional(),
+  collapsible: z.boolean().optional(),
+  component: z.literal("array-section"),
+  default_item: z.unknown().optional(),
+  empty_message: I18nEntrySchema.optional(),
+  remove_tooltip: I18nEntrySchema.optional(),
+  sortable: z.boolean().optional(),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof PropertyUIArraySectionPropsSchema>,
+    PropertyUIArraySectionProps
+  > = true
+}
+
+// Collapsible panel component schema
+const PropertyUICollapsiblePanelPropsSchema = PropertyUICommonPropsSchema.extend({
+  collapsible: z.boolean().optional(),
+  component: z.literal("collapsible-panel"),
+  default_collapsed: z.boolean().optional(),
+  panel_title: I18nEntrySchema.optional(),
+  remove_tooltip: I18nEntrySchema.optional(),
+  sortable: z.boolean().optional(),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof PropertyUICollapsiblePanelPropsSchema>,
+    PropertyUICollapsiblePanelProps
+  > = true
+}
+
+export const PropertyUIPropsSchema = z.discriminatedUnion("type", [
+  PropertyUIInputPropsSchema,
+  PropertyUITextareaPropsSchema,
+  PropertyUIExpressionInputPropsSchema,
+  PropertyUINumberInputPropsSchema,
+  PropertyUICodeEditorPropsSchema,
+  PropertyUISingleSelectPropsSchema,
+  PropertyUIRadioGroupPropsSchema,
+  PropertyUIMultiSelectPropsSchema,
+  PropertyUISwitchPropsSchema,
+  PropertyUICheckboxPropsSchema,
+  PropertyUISliderPropsSchema,
+  PropertyUIKeyValueEditorPropsSchema,
+  PropertyUITagInputPropsSchema,
+  PropertyUICredentialSelectPropsSchema,
+  PropertyUIJsonSchemaEditorPropsSchema,
+  PropertyUIConditionsEditorPropsSchema,
+  PropertyUIVariablesSchemaSectionPropsSchema,
+  PropertyUIVariablesValuesSectionPropsSchema,
+  PropertyUIArraySectionPropsSchema,
+  PropertyUICollapsiblePanelPropsSchema,
+  PropertyUIEncryptedInputPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUIPropsSchema>, PropertyUIProps> = true
+}
+
+export const PropertyUIBooleanSchema = z.discriminatedUnion("component", [
+  PropertyUISwitchPropsSchema,
+  PropertyUICheckboxPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUIBooleanSchema>, PropertyUIBoolean> = true
+}
+
+export const PropertyUINumberSchema = z.discriminatedUnion("component", [
+  PropertyUINumberInputPropsSchema,
+  PropertyUISliderPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUINumberSchema>, PropertyUINumber> = true
+}
+
+export const PropertyUIStringSchema = z.discriminatedUnion("component", [
+  PropertyUIInputPropsSchema,
+  PropertyUITextareaPropsSchema,
+  PropertyUIExpressionInputPropsSchema,
+  PropertyUICodeEditorPropsSchema,
+  PropertyUISingleSelectPropsSchema,
+  PropertyUICredentialSelectPropsSchema,
+  PropertyUIRadioGroupPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUIStringSchema>, PropertyUIString> = true
+}
+
+export const PropertyUIArraySchema = z.discriminatedUnion("component", [
+  PropertyUIMultiSelectPropsSchema,
+  PropertyUITagInputPropsSchema,
+  PropertyUIKeyValueEditorPropsSchema,
+  PropertyUISliderPropsSchema,
+  PropertyUIArraySectionPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUIArraySchema>, PropertyUIArray> = true
+}
+
+export const PropertyUIObjectSchema = z.discriminatedUnion("component", [
+  PropertyUICollapsiblePanelPropsSchema,
+  PropertyUIJsonSchemaEditorPropsSchema,
+  PropertyUIConditionsEditorPropsSchema,
+  PropertyUIVariablesSchemaSectionPropsSchema,
+  PropertyUICodeEditorPropsSchema,
+  PropertyUIVariablesValuesSectionPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUIObjectSchema>, PropertyUIObject> = true
+}
+
+export const PropertyUICredentialIdSchema = z.discriminatedUnion("component", [
+  PropertyUICredentialSelectPropsSchema,
+])
+{
+  const _: IsEqual<z.infer<typeof PropertyUICredentialIdSchema>, PropertyUICredentialId> = true
+}
+
+export const PropertyUIDiscriminatorUISchema = z.discriminatedUnion("component", [
+  PropertyUISwitchPropsSchema,
+  PropertyUISingleSelectPropsSchema,
+  PropertyUIRadioGroupPropsSchema,
+])
+
+export const PropertyUIEncryptedStringSchema = z.discriminatedUnion("component", [
+  PropertyUIEncryptedInputPropsSchema,
+])

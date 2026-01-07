@@ -1,18 +1,18 @@
 import type { JsonObject, JsonValue } from "type-fest"
 import type { I18nText } from "./common"
 import type {
-  NodePropertyUIArray,
-  NodePropertyUIBoolean,
-  NodePropertyUICommonProps,
-  NodePropertyUICredentialId,
-  NodePropertyUIEncryptedString,
-  NodePropertyUINumber,
-  NodePropertyUIObject,
-  NodePropertyUIRadioGroupProps,
-  NodePropertyUISingleSelectProps,
-  NodePropertyUIString,
-  NodePropertyUISwitchProps,
-} from "./node-property-ui"
+  PropertyUIArray,
+  PropertyUIBoolean,
+  PropertyUICommonProps,
+  PropertyUICredentialId,
+  PropertyUIEncryptedString,
+  PropertyUINumber,
+  PropertyUIObject,
+  PropertyUIRadioGroupProps,
+  PropertyUISingleSelectProps,
+  PropertyUIString,
+  PropertyUISwitchProps,
+} from "./property-ui"
 
 /**
  * Condition for controlling property visibility based on sibling property values
@@ -111,7 +111,7 @@ export interface FilterOperators<TValue extends JsonValue = JsonValue> {
 
 // type ExpressionValue = string
 
-export interface NodePropertyBase<TName extends string = string> {
+export interface PropertyBase<TName extends string = string> {
   /**
    * Unique property name within the same level
    */
@@ -153,10 +153,10 @@ export interface NodePropertyBase<TName extends string = string> {
   /**
    * UI configuration for how the property is displayed
    */
-  ui?: NodePropertyUICommonProps
+  ui?: PropertyUICommonProps
 }
 
-export interface NodePropertyString<TName extends string = string> extends NodePropertyBase<TName> {
+export interface PropertyString<TName extends string = string> extends PropertyBase<TName> {
   type: "string"
   constant?: string
   default?: string
@@ -169,10 +169,10 @@ export interface NodePropertyString<TName extends string = string> extends NodeP
    * Minimum string length
    */
   min_length?: number
-  ui?: NodePropertyUIString
+  ui?: PropertyUIString
 }
 
-export interface NodePropertyNumber<TName extends string = string> extends NodePropertyBase<TName> {
+export interface PropertyNumber<TName extends string = string> extends PropertyBase<TName> {
   type: "number" | "integer"
   constant?: number
   default?: number
@@ -185,33 +185,32 @@ export interface NodePropertyNumber<TName extends string = string> extends NodeP
    * Minimum value (inclusive)
    */
   minimum?: number
-  ui?: NodePropertyUINumber
+  ui?: PropertyUINumber
 }
 
-export interface NodePropertyBoolean<TName extends string = string>
-  extends NodePropertyBase<TName> {
+export interface PropertyBoolean<TName extends string = string> extends PropertyBase<TName> {
   type: "boolean"
   constant?: boolean
   default?: boolean
   enum?: Array<boolean>
-  ui?: NodePropertyUIBoolean
+  ui?: PropertyUIBoolean
 }
 
-export interface NodePropertyObject<
+export interface PropertyObject<
   TName extends string = string,
   TValue extends Record<string, JsonValue> = Record<string, JsonValue>,
-> extends NodePropertyBase<TName> {
+> extends PropertyBase<TName> {
   type: "object"
   /**
    * Child properties of the object
    */
   properties: Array<
-    NodeProperty<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
+    Property<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
   >
   constant?: TValue
   default?: TValue
   enum?: Array<TValue>
-  ui?: NodePropertyUIObject
+  ui?: PropertyUIObject
 }
 
 export type DiscriminatedUnion<
@@ -223,7 +222,7 @@ export type DiscriminatedUnion<
    * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
    */
   any_of: Array<
-    NodePropertyObject<
+    PropertyObject<
       string,
       Record<string, JsonValue> & {
         [K in TDiscriminator]: TDiscriminatorValue
@@ -237,13 +236,10 @@ export type DiscriminatedUnion<
   /**
    * UI component for displaying the discriminator field
    */
-  discriminator_ui?:
-    | NodePropertyUISwitchProps
-    | NodePropertyUISingleSelectProps
-    | NodePropertyUIRadioGroupProps
+  discriminator_ui?: PropertyUISwitchProps | PropertyUISingleSelectProps | PropertyUIRadioGroupProps
 }
 
-export interface NodePropertyArray<TName extends string = string> extends NodePropertyBase<TName> {
+export interface PropertyArray<TName extends string = string> extends PropertyBase<TName> {
   type: "array"
   constant?: Array<JsonValue>
   default?: Array<JsonValue>
@@ -252,7 +248,7 @@ export interface NodePropertyArray<TName extends string = string> extends NodePr
    * Item schema: uniform type or discriminated union
    */
   items:
-    | NodeProperty // uniform items - array with same type for all elements
+    | Property // uniform items - array with same type for all elements
     | DiscriminatedUnion // discriminated union - polymorphic array items
   /**
    * Maximum array size (inclusive)
@@ -262,11 +258,10 @@ export interface NodePropertyArray<TName extends string = string> extends NodePr
    * Minimum array size (inclusive)
    */
   min_items?: number
-  ui?: NodePropertyUIArray
+  ui?: PropertyUIArray
 }
 
-export interface NodePropertyCredentialId<TName extends string = string>
-  extends NodePropertyBase<TName> {
+export interface PropertyCredentialId<TName extends string = string> extends PropertyBase<TName> {
   type: "credential_id"
   /**
    * This field is used to map to the credential name defined in the plugin.
@@ -274,20 +269,20 @@ export interface NodePropertyCredentialId<TName extends string = string>
    * **Note:** The name must match exactly, otherwise the system will be unable to find the corresponding credential.
    */
   credential_name: string
-  ui?: NodePropertyUICredentialId // the ui component for selecting the credential
+  ui?: PropertyUICredentialId // the ui component for selecting the credential
 }
 
-export interface NodePropertyEncryptedString<TName extends string = string>
-  extends NodePropertyBase<TName> {
+export interface PropertyEncryptedString<TName extends string = string>
+  extends PropertyBase<TName> {
   type: "encrypted_string"
-  ui?: NodePropertyUIEncryptedString
+  ui?: PropertyUIEncryptedString
 }
 
-export type NodeProperty<TName extends string = string, TValue extends JsonValue = JsonValue> =
-  | NodePropertyArray<TName>
-  | NodePropertyObject<TName, TValue extends JsonObject ? TValue : JsonObject>
-  | NodePropertyString<TName>
-  | NodePropertyBoolean<TName>
-  | NodePropertyNumber<TName>
-  | NodePropertyCredentialId<TName>
-  | NodePropertyEncryptedString<TName>
+export type Property<TName extends string = string, TValue extends JsonValue = JsonValue> =
+  | PropertyArray<TName>
+  | PropertyObject<TName, TValue extends JsonObject ? TValue : JsonObject>
+  | PropertyString<TName>
+  | PropertyBoolean<TName>
+  | PropertyNumber<TName>
+  | PropertyCredentialId<TName>
+  | PropertyEncryptedString<TName>

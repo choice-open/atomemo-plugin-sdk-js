@@ -8,7 +8,7 @@ import type {
   ToolDefinition,
 } from "../types"
 import { I18nEntrySchema } from "./common"
-import { NodePropertiesSchema } from "./node-property"
+import { PropertiesSchema } from "./property"
 
 /**
  * 基础定义模式
@@ -24,8 +24,8 @@ export const BaseDefinitionSchema = z.object({
   display_name: I18nEntrySchema,
   description: I18nEntrySchema,
   icon: z.string(),
-  parameters: NodePropertiesSchema,
-  settings: NodePropertiesSchema.optional(),
+  parameters: PropertiesSchema,
+  settings: PropertiesSchema.optional(),
 })
 {
   const _: IsEqual<z.infer<typeof BaseDefinitionSchema>, BaseDefinition> = true

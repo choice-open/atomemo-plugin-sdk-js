@@ -1,6 +1,6 @@
 import type { TransporterOptions } from "../core/transporter"
 import type { I18nText } from "./common"
-import type { NodeProperty } from "./node-property"
+import type { Property } from "./property"
 
 export interface BaseDefinition {
   /**
@@ -22,11 +22,11 @@ export interface BaseDefinition {
   /**
    * Parameters
    */
-  parameters: NodeProperty[]
+  parameters: Array<Property>
   /**
    * Settings
    */
-  settings?: NodeProperty[]
+  settings?: Array<Property>
 }
 
 /**
