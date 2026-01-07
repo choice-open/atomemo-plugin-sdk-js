@@ -57,7 +57,7 @@ export interface Registry {
    * @returns The serialized registry.
    */
   serialize: () => {
-    plugin: PluginRegistry & Record<FeatureType, Array<Record<string, JsonValue>>>
+    plugin: PluginRegistry & Record<`${FeatureType}s`, Array<Record<string, JsonValue>>>
   }
 }
 
@@ -97,10 +97,10 @@ export function createRegistry(plugin: PluginRegistry): Registry {
 
       return {
         plugin: Object.assign(store.plugin, {
-          credential: Array.from(store.credential.values()).map(serializeFeature),
-          data_source: Array.from(store.data_source.values()).map(serializeFeature),
-          model: Array.from(store.model.values()).map(serializeFeature),
-          tool: Array.from(store.tool.values()).map(serializeFeature),
+          credentials: Array.from(store.credential.values()).map(serializeFeature),
+          data_sources: Array.from(store.data_source.values()).map(serializeFeature),
+          models: Array.from(store.model.values()).map(serializeFeature),
+          tools: Array.from(store.tool.values()).map(serializeFeature),
         }),
       }
     },
