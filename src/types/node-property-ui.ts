@@ -47,6 +47,12 @@ export interface NodePropertyUICommonProps {
   width?: "small" | "medium" | "full"
 }
 
+export interface NodePropertyUIEncryptedInputProps extends NodePropertyUICommonProps {
+  component: "encrypted-input"
+}
+
+export type NodePropertyUIEncryptedString = NodePropertyUIEncryptedInputProps
+
 /** 输入框 UI 属性 */
 export interface NodePropertyUIInputProps extends NodePropertyUICommonProps {
   component: "input"
@@ -208,6 +214,7 @@ export type NodePropertyUIProps =
   | NodePropertyUIVariablesValuesSectionProps
   | NodePropertyUIArraySectionProps
   | NodePropertyUICollapsiblePanelProps
+  | NodePropertyUIEncryptedInputProps
 
 export type NodePropertyUIComponentType = NodePropertyUIProps["component"]
 

@@ -6,6 +6,7 @@ import type {
   NodePropertyUIBoolean,
   NodePropertyUICollapsiblePanelProps,
   NodePropertyUICredentialId,
+  NodePropertyUIEncryptedInputProps,
   NodePropertyUIInputProps,
   NodePropertyUIKeyValueEditorProps,
   NodePropertyUINumber,
@@ -40,12 +41,21 @@ export const NodePropertyUIOptionSchema = z.object({
   const _: IsEqual<z.infer<typeof NodePropertyUIOptionSchema>, NodePropertyUIOption> = true
 }
 
-// Input component schema
 const NodePropertyUIInputPropsSchema = NodePropertyUICommonPropsSchema.extend({
   component: z.literal("input"),
 })
 {
   const _: IsEqual<z.infer<typeof NodePropertyUIInputPropsSchema>, NodePropertyUIInputProps> = true
+}
+
+export const NodePropertyUIEncryptedInputPropsSchema = NodePropertyUICommonPropsSchema.extend({
+  component: z.literal("encrypted-input"),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof NodePropertyUIEncryptedInputPropsSchema>,
+    NodePropertyUIEncryptedInputProps
+  > = true
 }
 
 // Textarea component schema
@@ -243,6 +253,7 @@ export const NodePropertyUIPropsSchema = z.discriminatedUnion("type", [
   NodePropertyUIVariablesValuesSectionPropsSchema,
   NodePropertyUIArraySectionPropsSchema,
   NodePropertyUICollapsiblePanelPropsSchema,
+  NodePropertyUIEncryptedInputPropsSchema,
 ])
 {
   const _: IsEqual<z.infer<typeof NodePropertyUIPropsSchema>, NodePropertyUIProps> = true
@@ -309,8 +320,13 @@ export const NodePropertyUICredentialIdSchema = z.discriminatedUnion("component"
     NodePropertyUICredentialId
   > = true
 }
+
 export const NodePropertyUIDiscriminatorUISchema = z.discriminatedUnion("component", [
   NodePropertyUISwitchPropsSchema,
   NodePropertyUISingleSelectPropsSchema,
   NodePropertyUIRadioGroupPropsSchema,
+])
+
+export const NodePropertyUIEncryptedStringSchema = z.discriminatedUnion("component", [
+  NodePropertyUIEncryptedInputPropsSchema,
 ])

@@ -5,6 +5,7 @@ import type {
   NodePropertyUIBoolean,
   NodePropertyUICommonProps,
   NodePropertyUICredentialId,
+  NodePropertyUIEncryptedString,
   NodePropertyUINumber,
   NodePropertyUIObject,
   NodePropertyUIRadioGroupProps,
@@ -276,6 +277,12 @@ export interface NodePropertyCredentialId<TName extends string = string>
   ui?: NodePropertyUICredentialId // the ui component for selecting the credential
 }
 
+export interface NodePropertyEncryptedString<TName extends string = string>
+  extends NodePropertyBase<TName> {
+  type: "encrypted_string"
+  ui?: NodePropertyUIEncryptedString
+}
+
 export type NodeProperty<TName extends string = string, TValue extends JsonValue = JsonValue> =
   | NodePropertyArray<TName>
   | NodePropertyObject<TName, TValue extends JsonObject ? TValue : JsonObject>
@@ -283,3 +290,4 @@ export type NodeProperty<TName extends string = string, TValue extends JsonValue
   | NodePropertyBoolean<TName>
   | NodePropertyNumber<TName>
   | NodePropertyCredentialId<TName>
+  | NodePropertyEncryptedString<TName>

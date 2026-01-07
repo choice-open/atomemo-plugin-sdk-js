@@ -10,6 +10,7 @@ import type {
   NodePropertyBase,
   NodePropertyBoolean,
   NodePropertyCredentialId,
+  NodePropertyEncryptedString,
   NodePropertyNumber,
   NodePropertyObject,
   NodePropertyString,
@@ -21,6 +22,7 @@ import {
   NodePropertyUICommonPropsSchema,
   NodePropertyUICredentialIdSchema,
   NodePropertyUIDiscriminatorUISchema,
+  NodePropertyUIEncryptedStringSchema,
   NodePropertyUINumberSchema,
   NodePropertyUIObjectSchema,
   NodePropertyUIStringSchema,
@@ -239,7 +241,7 @@ const DiscriminatedUnionSchema = z
       return z.array(NodePropertyObjectSchema).min(2, "anyOf must have at least two items")
     },
     discriminator: z.string().min(1, "discriminator cannot be empty"),
-    discriminatorUi: NodePropertyUIDiscriminatorUISchema.optional(),
+    discriminator_ui: NodePropertyUIDiscriminatorUISchema.optional(),
   })
   .refine(
     (v) => {
@@ -280,10 +282,15 @@ const DiscriminatedUnionSchema = z
     {
       error: "Discriminator values must be unique across all anyOf items",
     },
-  ) as z.ZodType<DiscriminatedUnion> // use type assertion because of generic type plus recursive structure
+  )
+{
+  const schema = DiscriminatedUnionSchema.omit({ any_of: true })
+  const _: IsEqual<z.infer<typeof schema>, Omit<DiscriminatedUnion, "any_of">> = true
+}
 
 const ItemsSchema: z.ZodType<NodeProperty | DiscriminatedUnion> = z.lazy(() =>
-  z.union([NodePropertySchema, DiscriminatedUnionSchema]),
+  // use type assertion because of generic type plus recursive structure
+  z.union([NodePropertySchema, DiscriminatedUnionSchema as z.ZodType<DiscriminatedUnion>]),
 )
 
 const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
@@ -312,6 +319,16 @@ const NodePropertyCredentialIdSchema = NodePropertyBaseSchema.extend({
     NodePropertyCredentialId<string>
   > = true
 }
+const NodePropertyEncryptedStringSchema = NodePropertyBaseSchema.extend({
+  type: z.literal("encrypted_string"),
+  ui: NodePropertyUIEncryptedStringSchema.optional(),
+})
+{
+  const _: IsEqual<
+    z.infer<typeof NodePropertyEncryptedStringSchema>,
+    NodePropertyEncryptedString
+  > = true
+}
 
 const NodePropertySchema = z.union([
   NodePropertyStringSchema,
@@ -320,6 +337,7 @@ const NodePropertySchema = z.union([
   NodePropertyArraySchema,
   NodePropertyObjectSchema,
   NodePropertyCredentialIdSchema,
+  NodePropertyEncryptedStringSchema,
 ])
 {
   const _: IsEqual<z.infer<typeof NodePropertySchema>, NodeProperty> = true
