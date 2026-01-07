@@ -2,7 +2,7 @@ import { compact } from "es-toolkit"
 import type { IsEqual, JsonValue } from "type-fest"
 import { z } from "zod"
 import type {
-  ArrayDiscriminatedItems,
+  DiscriminatedUnion,
   DisplayCondition,
   FilterOperators,
   NodeProperty,
@@ -117,49 +117,49 @@ const NodePropertyBaseSchema = z.object({
   const _: IsEqual<z.infer<typeof NodePropertyBaseSchema>, NodePropertyBase<string>> = true
 }
 
-const expressionSchema = z.custom<string>((val) => {
-  if (typeof val !== "string") return false
-  const trimmed = val.trim()
-  return trimmed.startsWith("={{") && trimmed.endsWith("}}")
-}, "Invalid expression format")
+// const expressionSchema = z.custom<string>((val) => {
+//   if (typeof val !== "string") return false
+//   const trimmed = val.trim()
+//   return trimmed.startsWith("={{") && trimmed.endsWith("}}")
+// }, "Invalid expression format")
 
 /**
  * check that constant, default, and enum must not contain expression values
  * if ui.support_expression is not true
  */
-function setExpressionValueCheck<T extends z.ZodType<NodeProperty>>(schema: T) {
-  return schema.refine(
-    (obj) => {
-      if (obj.ui?.support_expression) return true
-      switch (obj.type) {
-        case "string":
-        case "credential_id": {
-          return true
-        }
-        case "number":
-        case "integer":
-        case "array":
-        case "object":
-        case "boolean": {
-          const checkConstant = obj.constant
-          if (typeof checkConstant === "string") return false
-          const checkDefault = obj.default
-          if (typeof checkDefault === "string") return false
-          const checkEnum = obj.enum
-          return (checkEnum ?? []).every((item) => typeof item !== "string")
-        }
-        default: {
-          const _t: never = obj
-          return false
-        }
-      }
-    },
-    {
-      error:
-        "constant, default, and enum cannot contain expression values if ui.support_expression is not true",
-    },
-  )
-}
+// function setExpressionValueCheck<T extends z.ZodType<NodeProperty>>(schema: T) {
+//   return schema.refine(
+//     (obj) => {
+//       if (obj.ui?.support_expression) return true
+//       switch (obj.type) {
+//         case "string":
+//         case "credential_id": {
+//           return true
+//         }
+//         case "number":
+//         case "integer":
+//         case "array":
+//         case "object":
+//         case "boolean": {
+//           const checkConstant = obj.constant
+//           if (typeof checkConstant === "string") return false
+//           const checkDefault = obj.default
+//           if (typeof checkDefault === "string") return false
+//           const checkEnum = obj.enum
+//           return (checkEnum ?? []).every((item) => typeof item !== "string")
+//         }
+//         default: {
+//           const _t: never = obj
+//           return false
+//         }
+//       }
+//     },
+//     {
+//       error:
+//         "constant, default, and enum cannot contain expression values if ui.support_expression is not true",
+//     },
+//   )
+// }
 
 const NodePropertyStringSchema = NodePropertyBaseSchema.extend({
   type: z.literal("string"),
@@ -176,24 +176,24 @@ const NodePropertyStringSchema = NodePropertyBaseSchema.extend({
 
 const NodePropertyNumberSchema = NodePropertyBaseSchema.extend({
   type: z.union([z.literal("number"), z.literal("integer")]),
-  constant: z.number().or(expressionSchema).optional(),
-  default: z.number().or(expressionSchema).optional(),
-  enum: z.array(z.number().or(expressionSchema)).optional(),
+  constant: z.number().optional(),
+  default: z.number().optional(),
+  enum: z.array(z.number()).optional(),
   maximum: z.number().optional(),
   minimum: z.number().optional(),
   ui: NodePropertyUINumberSchema.optional(),
-}).apply(setExpressionValueCheck)
+})
 {
   const _: IsEqual<z.infer<typeof NodePropertyNumberSchema>, NodePropertyNumber<string>> = true
 }
 
 const NodePropertyBooleanSchema = NodePropertyBaseSchema.extend({
   type: z.literal("boolean"),
-  constant: z.boolean().or(expressionSchema).optional(),
-  default: z.boolean().or(expressionSchema).optional(),
-  enum: z.array(z.boolean().or(expressionSchema)).optional(),
+  constant: z.boolean().optional(),
+  default: z.boolean().optional(),
+  enum: z.array(z.boolean()).optional(),
   ui: NodePropertyUIBooleanSchema.optional(),
-}).apply(setExpressionValueCheck)
+})
 {
   const _: IsEqual<z.infer<typeof NodePropertyBooleanSchema>, NodePropertyBoolean<string>> = true
 }
@@ -222,18 +222,19 @@ const PropertiesSchema: z.ZodType<Array<NodeProperty>> = z.lazy(() =>
 const NodePropertyObjectSchema = NodePropertyBaseSchema.extend({
   type: z.literal("object"),
   properties: PropertiesSchema,
-  constant: z.record(z.string(), JsonValueSchema).or(expressionSchema).optional(),
-  default: z.record(z.string(), JsonValueSchema).or(expressionSchema).optional(),
-  enum: z.array(z.record(z.string(), JsonValueSchema).or(expressionSchema)).optional(),
+  constant: z.record(z.string(), JsonValueSchema).optional(),
+  default: z.record(z.string(), JsonValueSchema).optional(),
+  enum: z.array(z.record(z.string(), JsonValueSchema)).optional(),
   ui: NodePropertyUIObjectSchema.optional(),
-}).apply(setExpressionValueCheck)
+})
 {
   type NodePropertyObjectInferred = z.infer<typeof NodePropertyObjectSchema>
   const _: IsEqual<NodePropertyObjectInferred, NodePropertyObject> = true
 }
 
-const ArrayDiscriminatedItemsSchema = z
+const DiscriminatedUnionSchema = z
   .object({
+    type: z.literal("discriminated_union"),
     get any_of() {
       return z.array(NodePropertyObjectSchema).min(2, "anyOf must have at least two items")
     },
@@ -279,22 +280,22 @@ const ArrayDiscriminatedItemsSchema = z
     {
       error: "Discriminator values must be unique across all anyOf items",
     },
-  ) as z.ZodType<ArrayDiscriminatedItems> // use type assertion because of generic type plus recursive structure
+  ) as z.ZodType<DiscriminatedUnion> // use type assertion because of generic type plus recursive structure
 
-const ItemsSchema: z.ZodType<NodeProperty | ArrayDiscriminatedItems> = z.lazy(() =>
-  z.union([NodePropertySchema, ArrayDiscriminatedItemsSchema]),
+const ItemsSchema: z.ZodType<NodeProperty | DiscriminatedUnion> = z.lazy(() =>
+  z.union([NodePropertySchema, DiscriminatedUnionSchema]),
 )
 
 const NodePropertyArraySchema = NodePropertyBaseSchema.extend({
   type: z.literal("array"),
-  constant: z.array(JsonValueSchema).or(expressionSchema).optional(),
-  default: z.array(JsonValueSchema).or(expressionSchema).optional(),
-  enum: z.array(z.array(JsonValueSchema).or(expressionSchema)).optional(),
+  constant: z.array(JsonValueSchema).optional(),
+  default: z.array(JsonValueSchema).optional(),
+  enum: z.array(z.array(JsonValueSchema)).optional(),
   items: ItemsSchema,
   max_items: z.number().optional(),
   min_items: z.number().optional(),
   ui: NodePropertyUIArraySchema.optional(),
-}).apply(setExpressionValueCheck)
+})
 {
   const _: IsEqual<z.infer<typeof NodePropertyArraySchema>, NodePropertyArray> = true
 }
@@ -303,7 +304,7 @@ const NodePropertyCredentialIdSchema = NodePropertyBaseSchema.extend({
   type: z.literal("credential_id"),
   credential_name: z.string().min(1, "credential_name cannot be empty"),
   ui: NodePropertyUICredentialIdSchema.optional(),
-}).apply(setExpressionValueCheck)
+})
 
 {
   const _: IsEqual<

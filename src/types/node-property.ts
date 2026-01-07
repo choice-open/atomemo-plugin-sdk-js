@@ -108,7 +108,7 @@ export interface FilterOperators<TValue extends JsonValue = JsonValue> {
   $size?: TValue extends Array<unknown> ? number : never
 }
 
-type ExpressionValue = string
+// type ExpressionValue = string
 
 export interface NodePropertyBase<TName extends string = string> {
   /**
@@ -173,9 +173,9 @@ export interface NodePropertyString<TName extends string = string> extends NodeP
 
 export interface NodePropertyNumber<TName extends string = string> extends NodePropertyBase<TName> {
   type: "number" | "integer"
-  constant?: number | ExpressionValue
-  default?: number | ExpressionValue
-  enum?: Array<number | ExpressionValue>
+  constant?: number
+  default?: number
+  enum?: Array<number>
   /**
    * Maximum value (inclusive)
    */
@@ -190,9 +190,9 @@ export interface NodePropertyNumber<TName extends string = string> extends NodeP
 export interface NodePropertyBoolean<TName extends string = string>
   extends NodePropertyBase<TName> {
   type: "boolean"
-  constant?: boolean | ExpressionValue
-  default?: boolean | ExpressionValue
-  enum?: Array<boolean | ExpressionValue>
+  constant?: boolean
+  default?: boolean
+  enum?: Array<boolean>
   ui?: NodePropertyUIBoolean
 }
 
@@ -207,16 +207,17 @@ export interface NodePropertyObject<
   properties: Array<
     NodeProperty<TValue extends Record<string, JsonValue> ? Exclude<keyof TValue, number> : string>
   >
-  constant?: TValue | ExpressionValue
-  default?: TValue | ExpressionValue
-  enum?: Array<TValue | ExpressionValue>
+  constant?: TValue
+  default?: TValue
+  enum?: Array<TValue>
   ui?: NodePropertyUIObject
 }
 
-export type ArrayDiscriminatedItems<
+export type DiscriminatedUnion<
   TDiscriminator extends string = string,
   TDiscriminatorValue extends string | number | boolean = string | number | boolean,
 > = {
+  type: "discriminated_union"
   /**
    * Possible object types in the array; name is ignored when used in anyOf (used for grouping)
    */
@@ -243,15 +244,15 @@ export type ArrayDiscriminatedItems<
 
 export interface NodePropertyArray<TName extends string = string> extends NodePropertyBase<TName> {
   type: "array"
-  constant?: Array<JsonValue> | ExpressionValue
-  default?: Array<JsonValue> | ExpressionValue
-  enum?: Array<Array<JsonValue> | ExpressionValue>
+  constant?: Array<JsonValue>
+  default?: Array<JsonValue>
+  enum?: Array<Array<JsonValue>>
   /**
    * Item schema: uniform type or discriminated union
    */
   items:
     | NodeProperty // uniform items - array with same type for all elements
-    | ArrayDiscriminatedItems // discriminated union - polymorphic array items
+    | DiscriminatedUnion // discriminated union - polymorphic array items
   /**
    * Maximum array size (inclusive)
    */
