@@ -22,6 +22,7 @@ import {
   PropertyUICommonPropsSchema,
   PropertyUICredentialIdSchema,
   PropertyUIDiscriminatorUISchema,
+  PropertyUIDiscriminatorUnionUISchema,
   PropertyUIEncryptedStringSchema,
   PropertyUINumberSchema,
   PropertyUIObjectSchema,
@@ -181,7 +182,16 @@ const PropertyObjectSchema = PropertyBaseSchema.extend({
   default: z.record(z.string(), JsonValueSchema).optional(),
   enum: z.array(z.record(z.string(), JsonValueSchema)).optional(),
   ui: PropertyUIObjectSchema.optional(),
-})
+}).refine(
+  (v) => {
+    if (v.constant) return v.properties.length === 0
+    return true
+  },
+  {
+    error: "properties must be empty when constant is defined",
+    abort: true,
+  },
+)
 {
   type PropertyObjectInferred = z.infer<typeof PropertyObjectSchema>
   const _: IsEqual<PropertyObjectInferred, PropertyObject> = true
@@ -196,6 +206,7 @@ const PropertyDiscriminatedUnionSchema = PropertyBaseSchema.extend({
   },
   discriminator: z.string().min(1, "discriminator cannot be empty"),
   discriminator_ui: PropertyUIDiscriminatorUISchema.optional(),
+  ui: PropertyUIDiscriminatorUnionUISchema.optional(),
 })
   .refine(
     (v) => {

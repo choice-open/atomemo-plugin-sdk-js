@@ -321,6 +321,10 @@ export const PropertyUIDiscriminatorUISchema = z.discriminatedUnion("component",
   PropertyUIRadioGroupPropsSchema,
 ])
 
+export const PropertyUIDiscriminatorUnionUISchema = z.discriminatedUnion("component", [
+  PropertyUICollapsiblePanelPropsSchema,
+])
+
 export const PropertyUIEncryptedStringSchema = z.discriminatedUnion("component", [
   PropertyUIEncryptedInputPropsSchema,
 ])

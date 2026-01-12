@@ -3,6 +3,7 @@ import type { I18nText } from "./common"
 import type {
   PropertyUIArray,
   PropertyUIBoolean,
+  PropertyUICollapsiblePanelProps,
   PropertyUICommonProps,
   PropertyUICredentialId,
   PropertyUIEncryptedString,
@@ -271,6 +272,7 @@ export interface PropertyDiscriminatedUnion<
    * UI component for displaying the discriminator field
    */
   discriminator_ui?: PropertyUISwitchProps | PropertyUISingleSelectProps | PropertyUIRadioGroupProps
+  ui?: PropertyUICollapsiblePanelProps
 }
 
 export interface PropertyArray<TName extends string = string> extends PropertyBase<TName> {
