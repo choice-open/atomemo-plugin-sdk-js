@@ -76,6 +76,7 @@ export const PropertyUICommonPropsSchema = z.object({
   support_expression: z.boolean().optional(),
   width: z.enum(["small", "medium", "full"]).optional(),
   indentation: indentationSchema.optional(),
+  display_none: z.boolean().optional(),
 })
 
 // Option schema for select components

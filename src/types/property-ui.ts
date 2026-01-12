@@ -52,6 +52,15 @@ export interface PropertyUICommonProps {
    * calculation rule: (4 * indentation)px
    */
   indentation?: IntRange<2, 81, 2>
+  /**
+   * Hide the component in the UI while preserving its value.
+   * Often used in combination with constant of Property to create hidden fields.
+   * - Layout behavior: behaves like CSS `display: none` (no space is reserved).
+   * - Data behavior: the underlying value is kept, included in serialization, and validated normally.
+   * @default false
+   * @see https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/display#none.
+   */
+  display_none?: boolean
 }
 
 export interface PropertyUIEncryptedInputProps extends PropertyUICommonProps {
