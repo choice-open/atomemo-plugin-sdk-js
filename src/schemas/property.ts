@@ -175,9 +175,12 @@ const ArrayPropertiesSchema: z.ZodType<PropertyObject["properties"]> = z.lazy(()
   z.array(PropertySchema).apply(setDuplicatePropertyNamesCheck),
 )
 
+const additionalPropertiesSchema: z.ZodType<Property> = z.lazy(() => PropertySchema)
+
 const PropertyObjectSchema = PropertyBaseSchema.extend({
   type: z.literal("object"),
   properties: ArrayPropertiesSchema,
+  additional_properties: additionalPropertiesSchema.optional(),
   constant: z.record(z.string(), JsonValueSchema).optional(),
   default: z.record(z.string(), JsonValueSchema).optional(),
   enum: z.array(z.record(z.string(), JsonValueSchema)).optional(),

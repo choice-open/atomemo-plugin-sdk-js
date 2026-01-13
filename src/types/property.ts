@@ -250,6 +250,12 @@ export interface PropertyObject<
    * Restrict value to a set of allowed values
    */
   enum?: Array<TValue>
+  /**
+   * Schema for additional properties beyond those defined in `properties`.
+   * Supports dynamic keys with values conforming to the specified property schema.
+   * Semantics similar to JSON Schema's additionalProperties: https://json-schema.org/draft/2019-09/draft-handrews-json-schema-02#additionalProperties
+   */
+  additional_properties?: Property
   ui?: PropertyUIObject
 }
 
