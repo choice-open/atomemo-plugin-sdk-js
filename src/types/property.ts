@@ -238,7 +238,6 @@ export interface PropertyObject<
           >
         >,
       ]
-
   /**
    * Restrict value to a single constant
    */

@@ -16,7 +16,6 @@ export interface PropertyUIOption {
   value: string | number | boolean
 }
 
-/** 通用 UI 属性 */
 export interface PropertyUICommonProps {
   /**
    * Whether the component is disabled
@@ -122,21 +121,27 @@ export interface PropertyUIRadioGroupProps
   component: "radio-group"
 }
 
+export interface PropertyUIEmojiPickerProps extends PropertyUICommonProps {
+  component: "emoji-picker"
+  size?: "extra-small" | "small" | "medium" | "large"
+}
+
+export interface PropertyUIColorPickerProps extends PropertyUICommonProps {
+  component: "color-picker"
+}
+
 interface PropertyUIMultiSelectProps extends PropertyUICommonProps, PropertyUISelectPropsBase {
   component: "multi-select"
 }
 
-/** 开关 UI 属性 */
 export interface PropertyUISwitchProps extends PropertyUICommonProps {
   component: "switch"
 }
 
-/** 复选框 UI 属性 */
 interface PropertyUICheckboxProps extends PropertyUICommonProps {
   component: "checkbox"
 }
 
-/** 滑块 UI 属性 */
 interface PropertyUISliderProps extends PropertyUICommonProps {
   component: "slider"
   marks?: Record<number, string>
@@ -144,59 +149,47 @@ interface PropertyUISliderProps extends PropertyUICommonProps {
   step?: number
 }
 
-/** 键值编辑器 UI 属性 */
+/** Key/value pair editor UI. Supports Array<{name: string, value: string}> only. */
 export interface PropertyUIKeyValueEditorProps extends PropertyUICommonProps {
+  /** Custom text for the add button. */
   add_button_label?: I18nText
+  /**
+   * Item definition of PropertyArray is ignored for this UI; it always renders name/value pairs.
+   */
   component: "key-value-editor"
-  default_item?: unknown
+  /** Description displayed when the list is empty. */
   empty_description?: I18nText
+  /** Optional header text shown above the list. */
   section_header?: I18nText
 }
 
-/** 标签输入 UI 属性 */
 interface PropertyUITagInputProps extends PropertyUICommonProps {
   component: "tag-input"
 }
 
-/** 凭证选择 UI 属性 */
 interface PropertyUICredentialSelectProps extends PropertyUICommonProps {
   clearable?: boolean
   component: "credential-select"
   searchable?: boolean
 }
 
-/** JSON Schema 编辑器 UI 属性 */
 interface PropertyUIJsonSchemaEditorProps extends PropertyUICommonProps {
   component: "json-schema-editor"
 }
 
-/** 条件编辑器 UI 属性 */
 interface PropertyUIConditionsEditorProps extends PropertyUICommonProps {
   component: "conditions-editor"
 }
 
-/** 变量 Schema Section UI 属性 */
-interface PropertyUIVariablesSchemaSectionProps extends PropertyUICommonProps {
-  component: "variables-schema-section"
-}
-
-/** 变量值 Section UI 属性 */
-interface PropertyUIVariablesValuesSectionProps extends PropertyUICommonProps {
-  component: "variables-values-section"
-}
-
-/** 数组 Section UI 属性 */
 export interface PropertyUIArraySectionProps extends PropertyUICommonProps {
   add_label?: I18nText
   collapsible?: boolean
   component: "array-section"
-  default_item?: unknown
   empty_message?: I18nText
   remove_tooltip?: I18nText
   sortable?: boolean
 }
 
-/** 可折叠面板 UI 属性 */
 export interface PropertyUICollapsiblePanelProps extends PropertyUICommonProps {
   collapsible?: boolean
   component: "collapsible-panel"
@@ -206,7 +199,6 @@ export interface PropertyUICollapsiblePanelProps extends PropertyUICommonProps {
   sortable?: boolean
 }
 
-/** 节点属性 UI 属性并集类型 */
 export type PropertyUIProps =
   | PropertyUIInputProps
   | PropertyUITextareaProps
@@ -215,6 +207,8 @@ export type PropertyUIProps =
   | PropertyUICodeEditorProps
   | PropertyUISingleSelectProps
   | PropertyUIRadioGroupProps
+  | PropertyUIEmojiPickerProps
+  | PropertyUIColorPickerProps
   | PropertyUIMultiSelectProps
   | PropertyUISwitchProps
   | PropertyUICheckboxProps
@@ -224,8 +218,6 @@ export type PropertyUIProps =
   | PropertyUICredentialSelectProps
   | PropertyUIJsonSchemaEditorProps
   | PropertyUIConditionsEditorProps
-  | PropertyUIVariablesSchemaSectionProps
-  | PropertyUIVariablesValuesSectionProps
   | PropertyUIArraySectionProps
   | PropertyUICollapsiblePanelProps
   | PropertyUIEncryptedInputProps
@@ -244,6 +236,8 @@ export type PropertyUIString =
   | PropertyUISingleSelectProps
   | PropertyUICredentialSelectProps
   | PropertyUIRadioGroupProps
+  | PropertyUIEmojiPickerProps
+  | PropertyUIColorPickerProps
 
 export type PropertyUIArray =
   | PropertyUIMultiSelectProps
@@ -254,11 +248,7 @@ export type PropertyUIArray =
 
 export type PropertyUIContainer = PropertyUICollapsiblePanelProps
 
-export type PropertyUIMisc =
-  | PropertyUIJsonSchemaEditorProps
-  | PropertyUIConditionsEditorProps
-  | PropertyUIVariablesSchemaSectionProps
-  | PropertyUIVariablesValuesSectionProps
+export type PropertyUIMisc = PropertyUIJsonSchemaEditorProps | PropertyUIConditionsEditorProps
 
 export type PropertyUIObject = PropertyUIContainer | PropertyUIMisc | PropertyUICodeEditorProps
 
