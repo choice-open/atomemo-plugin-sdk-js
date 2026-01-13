@@ -1,235 +1,356 @@
 import { beforeEach, describe, expect, test } from "bun:test"
-import type { Feature, Provider } from "../../src/core/provider"
 import { createRegistry } from "../../src/core/registry"
+import type {
+  CredentialDefinition,
+  DataSourceDefinition,
+  ModelDefinition,
+  PluginDefinition,
+  ToolDefinition,
+} from "../../src/types"
 
 describe("registry", () => {
+  const mockPlugin: PluginDefinition = {
+    name: "test-plugin",
+    display_name: { en_US: "Test Plugin" },
+    description: { en_US: "A test plugin" },
+    icon: "🔌",
+    author: "Test Author",
+    email: "test@example.com",
+    locales: ["en_US"],
+  }
+
   let registry: ReturnType<typeof createRegistry>
 
   beforeEach(() => {
-    registry = createRegistry()
+    registry = createRegistry(mockPlugin)
   })
 
-  describe("registerProvider", () => {
-    test("should register a provider successfully", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
+  describe("register", () => {
+    test("should register a credential successfully", () => {
+      const credential: CredentialDefinition = {
+        name: "test-credential",
+        display_name: { en_US: "Test Credential" },
+        description: { en_US: "A test credential" },
+        icon: "🔑",
+        parameters: [],
       }
 
-      expect(() => registry.registerProvider(provider)).not.toThrow()
+      expect(() => registry.register("credential", credential)).not.toThrow()
     })
 
-    test("should throw error when registering duplicate provider", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
+    test("should register a tool successfully", () => {
+      const tool: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool" },
+        description: { en_US: "A test tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result",
       }
 
-      registry.registerProvider(provider)
-
-      expect(() => registry.registerProvider(provider)).toThrow(
-        'Provider "test-provider" already registered.',
-      )
+      expect(() => registry.register("tool", tool)).not.toThrow()
     })
 
-    test("should handle providers with different names", () => {
-      const provider1: Provider = {
-        name: { en_US: "provider-1" },
-      }
-      const provider2: Provider = {
-        name: { en_US: "provider-2" },
+    test("should register a model successfully", () => {
+      const model: ModelDefinition = {
+        name: "test-provider/test-model",
+        display_name: { en_US: "Test Model" },
+        description: { en_US: "A test model" },
+        icon: "🤖",
+        model_type: "llm",
+        input_modalities: ["text"],
+        output_modalities: ["text"],
+        unsupported_parameters: [],
       }
 
-      expect(() => {
-        registry.registerProvider(provider1)
-        registry.registerProvider(provider2)
-      }).not.toThrow()
+      expect(() => registry.register("model", model)).not.toThrow()
     })
 
-    test("should use en_US key for provider name", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider", zh_CN: "测试提供者" },
+    test("should register a data source successfully", () => {
+      const dataSource: DataSourceDefinition = {
+        name: "test-data-source",
+        display_name: { en_US: "Test Data Source" },
+        description: { en_US: "A test data source" },
+        icon: "📊",
+        parameters: [],
       }
 
-      registry.registerProvider(provider)
-
-      // Try to register again with same en_US but different zh_CN
-      const duplicateProvider: Provider = {
-        name: { en_US: "test-provider", zh_CN: "不同的中文名" },
-      }
-
-      expect(() => registry.registerProvider(duplicateProvider)).toThrow(
-        'Provider "test-provider" already registered.',
-      )
-    })
-  })
-
-  describe("registerFeature", () => {
-    test("should register a feature for a registered provider", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
-      }
-      const feature: Feature = {
-        name: { en_US: "test-tool" },
-      }
-
-      registry.registerProvider(provider)
-      expect(() => registry.registerFeature("tool", feature, "test-provider")).not.toThrow()
-    })
-
-    test("should throw error when provider is not registered", () => {
-      const feature: Feature = {
-        name: { en_US: "test-tool" },
-      }
-
-      expect(() => registry.registerFeature("tool", feature, "non-existent-provider")).toThrow(
-        'Provider "non-existent-provider" not registered.',
-      )
-    })
-
-    test("should register multiple features for the same provider", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
-      }
-      const feature1: Feature = {
-        name: { en_US: "tool-1" },
-      }
-      const feature2: Feature = {
-        name: { en_US: "tool-2" },
-      }
-
-      registry.registerProvider(provider)
-      registry.registerFeature("tool", feature1, "test-provider")
-      registry.registerFeature("tool", feature2, "test-provider")
-
-      // Both should be resolvable
-      expect(registry.resolve("tool", "test-provider", "tool-1")).toBe(feature1)
-      expect(registry.resolve("tool", "test-provider", "tool-2")).toBe(feature2)
+      expect(() => registry.register("data_source", dataSource)).not.toThrow()
     })
 
     test("should overwrite feature with same name", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
-      }
-      const feature1: Feature = {
-        name: { en_US: "test-tool" },
-      }
-      const feature2: Feature = {
-        name: { en_US: "test-tool" },
-      }
-
-      registry.registerProvider(provider)
-      registry.registerFeature("tool", feature1, "test-provider")
-      registry.registerFeature("tool", feature2, "test-provider")
-
-      // Should resolve to the last registered feature
-      expect(registry.resolve("tool", "test-provider", "test-tool")).toBe(feature2)
-    })
-
-    test("should use en_US key for feature name", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
-      }
-      const feature: Feature = {
-        name: { en_US: "test-tool", zh_CN: "测试工具" },
+      const tool1: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool 1" },
+        description: { en_US: "First tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result1",
       }
 
-      registry.registerProvider(provider)
-      registry.registerFeature("tool", feature, "test-provider")
+      const tool2: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool 2" },
+        description: { en_US: "Second tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result2",
+      }
 
-      // Should resolve using en_US key
-      const resolved = registry.resolve("tool", "test-provider", "test-tool")
-      expect(resolved).toBe(feature)
+      registry.register("tool", tool1)
+      registry.register("tool", tool2)
+
+      const resolved = registry.resolve("tool", "test-tool")
+      expect(resolved).toBe(tool2)
     })
   })
 
   describe("resolve", () => {
-    test("should resolve a registered feature", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
-      }
-      const feature: Feature = {
-        name: { en_US: "test-tool" },
+    test("should resolve a registered credential", () => {
+      const credential: CredentialDefinition = {
+        name: "test-credential",
+        display_name: { en_US: "Test Credential" },
+        description: { en_US: "A test credential" },
+        icon: "🔑",
+        parameters: [],
       }
 
-      registry.registerProvider(provider)
-      registry.registerFeature("tool", feature, "test-provider")
-
-      const resolved = registry.resolve("tool", "test-provider", "test-tool")
-      expect(resolved).toBe(feature)
+      registry.register("credential", credential)
+      const resolved = registry.resolve("credential", "test-credential")
+      expect(resolved).toBe(credential)
     })
 
-    test("should throw error when provider is not registered", () => {
-      expect(() => registry.resolve("tool", "non-existent-provider", "test-tool")).toThrow(
-        'Provider "non-existent-provider" not registered.',
-      )
+    test("should resolve a registered tool", () => {
+      const tool: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool" },
+        description: { en_US: "A test tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result",
+      }
+
+      registry.register("tool", tool)
+      const resolved = registry.resolve("tool", "test-tool")
+      expect(resolved).toBe(tool)
+    })
+
+    test("should resolve a registered model", () => {
+      const model: ModelDefinition = {
+        name: "test-provider/test-model",
+        display_name: { en_US: "Test Model" },
+        description: { en_US: "A test model" },
+        icon: "🤖",
+        model_type: "llm",
+        input_modalities: ["text"],
+        output_modalities: ["text"],
+        unsupported_parameters: [],
+      }
+
+      registry.register("model", model)
+      const resolved = registry.resolve("model", "test-provider/test-model")
+      expect(resolved).toBe(model)
+    })
+
+    test("should resolve a registered data source", () => {
+      const dataSource: DataSourceDefinition = {
+        name: "test-data-source",
+        display_name: { en_US: "Test Data Source" },
+        description: { en_US: "A test data source" },
+        icon: "📊",
+        parameters: [],
+      }
+
+      registry.register("data_source", dataSource)
+      const resolved = registry.resolve("data_source", "test-data-source")
+      expect(resolved).toBe(dataSource)
     })
 
     test("should throw error when feature is not registered", () => {
-      const provider: Provider = {
-        name: { en_US: "test-provider" },
-      }
-
-      registry.registerProvider(provider)
-
-      expect(() => registry.resolve("tool", "test-provider", "non-existent-tool")).toThrow(
-        'Feature "non-existent-tool" not registered.',
+      expect(() => registry.resolve("tool", "non-existent-tool")).toThrow(
+        'Feature "non-existent-tool" not registered',
       )
     })
 
-    test("should resolve features from different providers", () => {
-      const provider1: Provider = {
-        name: { en_US: "provider-1" },
-      }
-      const provider2: Provider = {
-        name: { en_US: "provider-2" },
-      }
-      const feature1: Feature = {
-        name: { en_US: "same-tool-name" },
-      }
-      const feature2: Feature = {
-        name: { en_US: "same-tool-name" },
+    test("should resolve features of different types with same name", () => {
+      const credential: CredentialDefinition = {
+        name: "shared-name",
+        display_name: { en_US: "Credential" },
+        description: { en_US: "A credential" },
+        icon: "🔑",
+        parameters: [],
       }
 
-      registry.registerProvider(provider1)
-      registry.registerProvider(provider2)
-      registry.registerFeature("tool", feature1, "provider-1")
-      registry.registerFeature("tool", feature2, "provider-2")
+      const tool: ToolDefinition = {
+        name: "shared-name",
+        display_name: { en_US: "Tool" },
+        description: { en_US: "A tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result",
+      }
 
-      expect(registry.resolve("tool", "provider-1", "same-tool-name")).toBe(feature1)
-      expect(registry.resolve("tool", "provider-2", "same-tool-name")).toBe(feature2)
+      registry.register("credential", credential)
+      registry.register("tool", tool)
+
+      expect(registry.resolve("credential", "shared-name")).toBe(credential)
+      expect(registry.resolve("tool", "shared-name")).toBe(tool)
+    })
+  })
+
+  describe("serialize", () => {
+    test("should serialize registry with plugin info", () => {
+      const serialized = registry.serialize()
+      expect(serialized).toHaveProperty("plugin")
+      expect(serialized.plugin.name).toBe("test-plugin")
+      expect(serialized.plugin.display_name).toEqual({ en_US: "Test Plugin" })
+    })
+
+    test("should serialize registered features", () => {
+      const credential: CredentialDefinition = {
+        name: "test-credential",
+        display_name: { en_US: "Test Credential" },
+        description: { en_US: "A test credential" },
+        icon: "🔑",
+        parameters: [],
+      }
+
+      const tool: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool" },
+        description: { en_US: "A test tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result",
+      }
+
+      registry.register("credential", credential)
+      registry.register("tool", tool)
+
+      const serialized = registry.serialize()
+      expect(serialized.plugin).toHaveProperty("credentials")
+      expect(serialized.plugin).toHaveProperty("tools")
+      expect(serialized.plugin.credentials).toHaveLength(1)
+      expect(serialized.plugin.tools).toHaveLength(1)
+      expect(serialized.plugin.credentials[0].name).toBe("test-credential")
+      expect(serialized.plugin.tools[0].name).toBe("test-tool")
+    })
+
+    test("should exclude function properties from serialized features", () => {
+      const tool: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool" },
+        description: { en_US: "A test tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result",
+      }
+
+      registry.register("tool", tool)
+      const serialized = registry.serialize()
+      expect(serialized.plugin.tools[0]).not.toHaveProperty("invoke")
+    })
+
+    test("should serialize empty arrays when no features registered", () => {
+      const serialized = registry.serialize()
+      expect(serialized.plugin.credentials).toEqual([])
+      expect(serialized.plugin.data_sources).toEqual([])
+      expect(serialized.plugin.models).toEqual([])
+      expect(serialized.plugin.tools).toEqual([])
+    })
+
+    test("should serialize all feature types", () => {
+      const credential: CredentialDefinition = {
+        name: "test-credential",
+        display_name: { en_US: "Test Credential" },
+        description: { en_US: "A test credential" },
+        icon: "🔑",
+        parameters: [],
+      }
+
+      const dataSource: DataSourceDefinition = {
+        name: "test-data-source",
+        display_name: { en_US: "Test Data Source" },
+        description: { en_US: "A test data source" },
+        icon: "📊",
+        parameters: [],
+      }
+
+      const model: ModelDefinition = {
+        name: "test-provider/test-model",
+        display_name: { en_US: "Test Model" },
+        description: { en_US: "A test model" },
+        icon: "🤖",
+        model_type: "llm",
+        input_modalities: ["text"],
+        output_modalities: ["text"],
+        unsupported_parameters: [],
+      }
+
+      const tool: ToolDefinition = {
+        name: "test-tool",
+        display_name: { en_US: "Test Tool" },
+        description: { en_US: "A test tool" },
+        icon: "🛠️",
+        parameters: [],
+        invoke: async () => "result",
+      }
+
+      registry.register("credential", credential)
+      registry.register("data_source", dataSource)
+      registry.register("model", model)
+      registry.register("tool", tool)
+
+      const serialized = registry.serialize()
+      expect(serialized.plugin.credentials).toHaveLength(1)
+      expect(serialized.plugin.data_sources).toHaveLength(1)
+      expect(serialized.plugin.models).toHaveLength(1)
+      expect(serialized.plugin.tools).toHaveLength(1)
     })
   })
 
   describe("integration", () => {
     test("should handle complete workflow", () => {
-      const provider1: Provider = {
-        name: { en_US: "openai" },
-      }
-      const provider2: Provider = {
-        name: { en_US: "anthropic" },
-      }
-      const tool1: Feature = {
-        name: { en_US: "chat" },
-      }
-      const tool2: Feature = {
-        name: { en_US: "completion" },
-      }
-      const tool3: Feature = {
-        name: { en_US: "chat" },
+      const credential: CredentialDefinition = {
+        name: "api-key",
+        display_name: { en_US: "API Key" },
+        description: { en_US: "API key credential" },
+        icon: "🔑",
+        parameters: [],
       }
 
-      // Register providers
-      registry.registerProvider(provider1)
-      registry.registerProvider(provider2)
+      const tool1: ToolDefinition = {
+        name: "send-email",
+        display_name: { en_US: "Send Email" },
+        description: { en_US: "Send an email" },
+        icon: "📧",
+        parameters: [],
+        invoke: async () => ({ success: true }),
+      }
+
+      const tool2: ToolDefinition = {
+        name: "get-weather",
+        display_name: { en_US: "Get Weather" },
+        description: { en_US: "Get weather information" },
+        icon: "☁️",
+        parameters: [],
+        invoke: async () => ({ temperature: 20 }),
+      }
 
       // Register features
-      registry.registerFeature("tool", tool1, "openai")
-      registry.registerFeature("tool", tool2, "openai")
-      registry.registerFeature("tool", tool3, "anthropic")
+      registry.register("credential", credential)
+      registry.register("tool", tool1)
+      registry.register("tool", tool2)
 
       // Resolve features
-      expect(registry.resolve("tool", "openai", "chat")).toBe(tool1)
-      expect(registry.resolve("tool", "openai", "completion")).toBe(tool2)
-      expect(registry.resolve("tool", "anthropic", "chat")).toBe(tool3)
+      expect(registry.resolve("credential", "api-key")).toBe(credential)
+      expect(registry.resolve("tool", "send-email")).toBe(tool1)
+      expect(registry.resolve("tool", "get-weather")).toBe(tool2)
+
+      // Serialize
+      const serialized = registry.serialize()
+      expect(serialized.plugin.credentials).toHaveLength(1)
+      expect(serialized.plugin.tools).toHaveLength(2)
     })
   })
 })
