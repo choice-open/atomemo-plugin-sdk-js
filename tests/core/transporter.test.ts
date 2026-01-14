@@ -104,7 +104,7 @@ describe("transporter", () => {
   beforeEach(() => {
     // Reset environment
     Object.assign(process.env, originalEnv)
-    ;(process.env as Record<string, string>).DAEMON_SERVER_WS_URL = "ws://localhost:4000/socket"
+    ;(process.env as Record<string, string>).HUB_SERVER_WS_URL = "ws://localhost:4000/socket"
     ;(process.env as Record<string, string>).DEBUG = "false"
 
     // Reset receive callbacks

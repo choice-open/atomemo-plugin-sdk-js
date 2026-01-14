@@ -82,7 +82,7 @@ function createTransporter(options?: TransporterOptions): {
 
 ### 通信流程
 
-1. 创建 Socket 连接到 `DAEMON_SERVER_WS_URL`
+1. 创建 Socket 连接到 `HUB_SERVER_WS_URL`
 2. 加入 `mirror:lobby` 频道
 3. 通过 `channel.push("shout", data)` 发送数据
 4. 监听 `channel.on("shout", callback)` 接收消息
@@ -91,7 +91,7 @@ function createTransporter(options?: TransporterOptions): {
 
 | 变量 | 说明 |
 |------|------|
-| `DAEMON_SERVER_WS_URL` | Daemon Server WebSocket 地址 |
+| `HUB_SERVER_WS_URL` | Hub Server WebSocket 地址 |
 | `DEBUG` | 启用调试日志 |
 
 ## 依赖关系

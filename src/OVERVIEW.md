@@ -37,7 +37,7 @@ export { createPlugin } from "./plugin"
 
 | 变量 | 类型 | 说明 |
 |------|------|------|
-| `DAEMON_SERVER_WS_URL` | `ws://` 或 `wss://` URL | Daemon Server 地址 |
+| `HUB_SERVER_WS_URL` | `ws://` 或 `wss://` URL | Hub Server 地址 |
 | `DEBUG` | boolean | 调试模式（非生产环境默认开启） |
 | `NODE_ENV` | `development` / `production` / `test` | 运行环境 |
 
@@ -68,7 +68,7 @@ export { createPlugin } from "./plugin"
 2. 创建 Transporter 传输层
 3. 提供 `add*` 方法注册功能
 4. `run()` 启动插件：
-   - 连接到 Daemon Server
+   - 连接到 Hub Server
    - 发送序列化的注册表
    - 监听并响应工具调用请求
    - 处理进程信号（SIGINT/SIGTERM）

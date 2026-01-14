@@ -3,18 +3,23 @@ import z from "zod"
 
 declare module "bun" {
   interface Env {
-    /** The URL of the Daemon Server WebSocket. */
-    readonly DAEMON_SERVER_WS_URL: string | undefined
+    /** The URL of the Hub Server WebSocket. */
+    readonly HUB_SERVER_WS_URL: string | undefined
     /** Whether to enable debug mode. */
     readonly DEBUG: boolean
+    /** The API key for the Hub Server. */
+    readonly DEBUG_API_KEY: string | undefined
   }
 }
 
 const EnvSchema = z.object({
-  DAEMON_SERVER_WS_URL: z.url({
+  HUB_SERVER_WS_URL: z.url({
     protocol: /wss?/,
-    error: "DAEMON_SERVER_WS_URL must be a valid WebSocket URL.",
+    error: "HUB_SERVER_WS_URL must be a valid WebSocket URL.",
   }),
+  DEBUG_API_KEY: z.string({
+    error: "DEBUG_API_KEY must be a string.",
+  }).meta({ description: `The API key for the Hub Server`, }),
   DEBUG: z
     .string()
     .optional()

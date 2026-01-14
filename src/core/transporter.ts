@@ -11,7 +11,7 @@ export interface TransporterOptions
 }
 
 /**
- * Creates a network transporter for communication with the Daemon Server.
+ * Creates a network transporter for communication with the Hub Server.
  *
  * @param options - The options for the transporter.
  * @returns An object with a connect method to establish the connection and a dispose method to close it.
@@ -19,7 +19,7 @@ export interface TransporterOptions
 export function createTransporter(options: TransporterOptions = {}) {
   const env = getEnv()
 
-  const socket = new Socket(env.DAEMON_SERVER_WS_URL, {
+  const socket = new Socket(env.HUB_SERVER_WS_URL, {
     debug: env.DEBUG,
     heartbeatIntervalMs: options.heartbeatIntervalMs ?? 30 * 1000,
     logger(kind, message, data) {
@@ -29,6 +29,7 @@ export function createTransporter(options: TransporterOptions = {}) {
       const inspection = data ? Bun.inspect(data, { colors: true }) : ""
       console.debug(`${timestamp} ${coloredKind} ${coloredMessage}`, inspection)
     },
+    params: { api_key: env.DEBUG_API_KEY },
   })
 
   socket.onOpen(() => {

@@ -4,9 +4,9 @@ import z from "zod"
 
 // Test the schema directly since getEnv() calls process.exit() which is hard to test
 const EnvSchema = z.object({
-  DAEMON_SERVER_WS_URL: z.url({
+  HUB_SERVER_WS_URL: z.url({
     protocol: /wss?/,
-    error: "DAEMON_SERVER_WS_URL must be a valid WebSocket URL.",
+    error: "HUB_SERVER_WS_URL must be a valid WebSocket URL.",
   }),
   DEBUG: z
     .string()
@@ -29,39 +29,39 @@ describe("env module", () => {
   describe("EnvSchema validation", () => {
     test("should accept valid ws:// URL", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+        HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
       })
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data.DAEMON_SERVER_WS_URL).toBe("ws://localhost:4000/socket")
+        expect(result.data.HUB_SERVER_WS_URL).toBe("ws://localhost:4000/socket")
       }
     })
 
     test("should accept valid wss:// URL", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "wss://example.com/socket",
+        HUB_SERVER_WS_URL: "wss://example.com/socket",
       })
       expect(result.success).toBe(true)
       if (result.success) {
-        expect(result.data.DAEMON_SERVER_WS_URL).toBe("wss://example.com/socket")
+        expect(result.data.HUB_SERVER_WS_URL).toBe("wss://example.com/socket")
       }
     })
 
     test("should reject non-WebSocket URL", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "https://example.com",
+        HUB_SERVER_WS_URL: "https://example.com",
       })
       expect(result.success).toBe(false)
     })
 
     test("should reject invalid URL", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "not-a-url",
+        HUB_SERVER_WS_URL: "not-a-url",
       })
       expect(result.success).toBe(false)
     })
 
-    test("should reject missing DAEMON_SERVER_WS_URL", () => {
+    test("should reject missing HUB_SERVER_WS_URL", () => {
       const result = EnvSchema.safeParse({})
       expect(result.success).toBe(false)
     })
@@ -73,7 +73,7 @@ describe("env module", () => {
       process.env.NODE_ENV = "development"
       try {
         const result = EnvSchema.safeParse({
-          DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+          HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         })
         expect(result.success).toBe(true)
         if (result.success) {
@@ -89,7 +89,7 @@ describe("env module", () => {
       process.env.NODE_ENV = "production"
       try {
         const result = EnvSchema.safeParse({
-          DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+          HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         })
         expect(result.success).toBe(true)
         if (result.success) {
@@ -102,7 +102,7 @@ describe("env module", () => {
 
     test("should return true when DEBUG is 'true'", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+        HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         DEBUG: "true",
       })
       expect(result.success).toBe(true)
@@ -113,7 +113,7 @@ describe("env module", () => {
 
     test("should return true when DEBUG is 'True' (case-insensitive)", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+        HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         DEBUG: "True",
       })
       expect(result.success).toBe(true)
@@ -124,7 +124,7 @@ describe("env module", () => {
 
     test("should return true when DEBUG is 'TRUE' (case-insensitive)", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+        HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         DEBUG: "TRUE",
       })
       expect(result.success).toBe(true)
@@ -135,7 +135,7 @@ describe("env module", () => {
 
     test("should return false when DEBUG is 'false'", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+        HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         DEBUG: "false",
       })
       expect(result.success).toBe(true)
@@ -146,7 +146,7 @@ describe("env module", () => {
 
     test("should return false when DEBUG is any other value", () => {
       const result = EnvSchema.safeParse({
-        DAEMON_SERVER_WS_URL: "ws://localhost:4000/socket",
+        HUB_SERVER_WS_URL: "ws://localhost:4000/socket",
         DEBUG: "anything else",
       })
       expect(result.success).toBe(true)
@@ -165,31 +165,31 @@ describe("env module", () => {
       }
     })
 
-    test("should return parsed env when DAEMON_SERVER_WS_URL is valid ws:// URL", () => {
-      ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+    test("should return parsed env when HUB_SERVER_WS_URL is valid ws:// URL", () => {
+      ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "ws://localhost:4000/socket"
 
       const { getEnv } = require("../src/env")
       const env = getEnv()
 
       expect(env).toBeDefined()
-      expect(env.DAEMON_SERVER_WS_URL).toBe("ws://localhost:4000/socket")
+      expect(env.HUB_SERVER_WS_URL).toBe("ws://localhost:4000/socket")
       expect(typeof env.DEBUG).toBe("boolean")
     })
 
-    test("should return parsed env when DAEMON_SERVER_WS_URL is valid wss:// URL", () => {
-      ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+    test("should return parsed env when HUB_SERVER_WS_URL is valid wss:// URL", () => {
+      ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "wss://example.com/socket"
 
       const { getEnv } = require("../src/env")
       const env = getEnv()
 
       expect(env).toBeDefined()
-      expect(env.DAEMON_SERVER_WS_URL).toBe("wss://example.com/socket")
+      expect(env.HUB_SERVER_WS_URL).toBe("wss://example.com/socket")
     })
 
     test("should cache parsed env on subsequent calls", () => {
-      ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+      ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "ws://localhost:4000/socket"
 
       const { getEnv } = require("../src/env")
@@ -197,11 +197,11 @@ describe("env module", () => {
       const env2 = getEnv()
 
       expect(env1).toBe(env2)
-      expect(env1.DAEMON_SERVER_WS_URL).toBe("ws://localhost:4000/socket")
+      expect(env1.HUB_SERVER_WS_URL).toBe("ws://localhost:4000/socket")
     })
 
-    test("should exit process when DAEMON_SERVER_WS_URL is missing", () => {
-      delete (process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL
+    test("should exit process when HUB_SERVER_WS_URL is missing", () => {
+      delete (process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL
 
       const exitMock = mock((code?: number) => {
         throw new Error(`process.exit(${code})`)
@@ -227,8 +227,8 @@ describe("env module", () => {
       expect(consoleErrorMock).toHaveBeenCalled()
     })
 
-    test("should exit process when DAEMON_SERVER_WS_URL is invalid", () => {
-      ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+    test("should exit process when HUB_SERVER_WS_URL is invalid", () => {
+      ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
         "https://example.com"
 
       const exitMock = mock((code?: number) => {
@@ -258,7 +258,7 @@ describe("env module", () => {
     describe("DEBUG field in getEnv", () => {
       test("should return true when DEBUG is not set and NODE_ENV is development", () => {
         const originalNodeEnv = process.env.NODE_ENV
-        ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+        ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
         delete (process.env as Record<string, string | undefined>).DEBUG
         process.env.NODE_ENV = "development"
@@ -274,7 +274,7 @@ describe("env module", () => {
 
       test("should return false when DEBUG is not set and NODE_ENV is production", () => {
         const originalNodeEnv = process.env.NODE_ENV
-        ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+        ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
         delete (process.env as Record<string, string | undefined>).DEBUG
         process.env.NODE_ENV = "production"
@@ -289,7 +289,7 @@ describe("env module", () => {
       })
 
       test("should return true when DEBUG is 'true'", () => {
-        ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+        ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
         ;(process.env as Record<string, string | undefined>).DEBUG = "true"
 
@@ -299,7 +299,7 @@ describe("env module", () => {
       })
 
       test("should return true when DEBUG is 'True' (case-insensitive)", () => {
-        ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+        ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
         ;(process.env as Record<string, string | undefined>).DEBUG = "True"
 
@@ -309,7 +309,7 @@ describe("env module", () => {
       })
 
       test("should return false when DEBUG is 'false'", () => {
-        ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+        ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
         ;(process.env as Record<string, string | undefined>).DEBUG = "false"
 
@@ -319,7 +319,7 @@ describe("env module", () => {
       })
 
       test("should return false when DEBUG is any other value", () => {
-        ;(process.env as Record<string, string | undefined>).DAEMON_SERVER_WS_URL =
+        ;(process.env as Record<string, string | undefined>).HUB_SERVER_WS_URL =
           "ws://localhost:4000/socket"
         ;(process.env as Record<string, string | undefined>).DEBUG = "anything"
 
