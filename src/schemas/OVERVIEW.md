@@ -4,12 +4,12 @@
 
 ## 模块列表
 
-| 文件 | 说明 |
-|------|------|
-| `common.ts` | I18n 词条校验 |
-| `definition.ts` | 插件与功能定义校验 |
-| `node-property.ts` | 节点属性校验 |
-| `node-property-ui.ts` | UI 组件属性校验 |
+| 文件             | 说明               |
+| ---------------- | ------------------ |
+| `common.ts`      | I18n 词条校验      |
+| `definition.ts`  | 插件与功能定义校验 |
+| `property.ts`    | 属性校验           |
+| `property-ui.ts` | UI 组件属性校验    |
 
 ## 设计原则
 
@@ -59,59 +59,67 @@ AI 模型定义：
 
 工具定义：包含 `invoke` 异步函数
 
-## node-property.ts
+## property.ts
 
-### NodePropertiesSchema
+### PropertiesSchema
 
 属性数组校验，自动检测重复的 `name`。
 
-### NodePropertySchema
+### PropertySchema
 
 联合类型校验，根据 `type` 字段判断类型：
 - `string` / `number` / `integer` / `boolean`
 - `array` / `object`
 - `credential_id` / `encrypted_string`
+- `discriminated_union`
 
-### DiscriminatedUnionSchema
+### PropertyObjectSchema
+对象类型校验：
+
+- `properties`: 子属性数组
+- `additional_properties`: 可选，允许超出定义属性的动态键-值对
+- 当 `constant` 定义时，`properties` 必须为空
+
+### PropertyDiscriminatedUnionSchema
 
 鉴别联合类型校验：
 - `any_of` 至少包含 2 个对象类型
 - 每个对象必须包含 `discriminator` 字段
 - 鉴别值必须唯一
 
-## node-property-ui.ts
+## property-ui.ts
 
 ### UI 组件 Schema
 
 使用 `z.discriminatedUnion` 根据 `component` 字段区分：
 
 ```typescript
-NodePropertyUIPropsSchema = z.discriminatedUnion("component", [
-  NodePropertyUIInputPropsSchema,
-  NodePropertyUITextareaPropsSchema,
+PropertyUIPropsSchema = z.discriminatedUnion("component", [
+  PropertyUIInputPropsSchema,
+  PropertyUITextareaPropsSchema,
   // ...更多组件
 ])
 ```
 
 ### 按类型分组的 Schema
 
-| Schema | 适用类型 |
-|--------|----------|
-| `NodePropertyUIBooleanSchema` | boolean |
-| `NodePropertyUINumberSchema` | number/integer |
-| `NodePropertyUIStringSchema` | string |
-| `NodePropertyUIArraySchema` | array |
-| `NodePropertyUIObjectSchema` | object |
-| `NodePropertyUICredentialIdSchema` | credential_id |
+| Schema                         | 适用类型       |
+| ------------------------------ | -------------- |
+| `PropertyUIBooleanSchema`      | boolean        |
+| `PropertyUINumberSchema`       | number/integer |
+| `PropertyUIStringSchema`       | string         |
+| `PropertyUIArraySchema`        | array          |
+| `PropertyUIObjectSchema`       | object         |
+| `PropertyUICredentialIdSchema` | credential_id  |
 
 ## 依赖关系
 
 ```
 common.ts (I18nEntrySchema)
     ↓
-node-property-ui.ts
+property-ui.ts
     ↓
-node-property.ts
+property.ts
     ↓
 definition.ts
 ```

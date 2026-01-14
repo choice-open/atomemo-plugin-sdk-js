@@ -1,6 +1,6 @@
 # Automation Plugin SDK - 架构文档
 
-> **生成时间：** 2026-01-13 14:30  
+> **生成时间：** 2026-01-13 14:30
 > **版本：** 0.0.0
 
 ## 项目概述
@@ -38,13 +38,13 @@ automation-plugin-sdk-js/
 │   ├── schemas/                  # Zod 验证模式
 │   │   ├── common.ts             # 通用模式（i18n）
 │   │   ├── definition.ts         # 功能定义验证
-│   │   ├── node-property.ts      # 属性数据验证
-│   │   └── node-property-ui.ts   # 属性 UI 验证
+│   │   ├── property.ts           # 属性数据验证
+│   │   └── property-ui.ts        # 属性 UI 验证
 │   ├── types/                    # TypeScript 类型
 │   │   ├── common.ts             # 通用类型（i18n）
 │   │   ├── definition.ts         # 功能定义类型
-│   │   ├── node-property.ts      # 属性数据类型
-│   │   └── node-property-ui.ts   # 属性 UI 类型
+│   │   ├── property.ts           # 属性数据类型
+│   │   └── property-ui.ts        # 属性 UI 类型
 │   ├── utils/                    # 工具函数
 │   │   └── serialize-feature.ts  # 功能序列化
 │   ├── env.ts                    # 环境配置
@@ -87,49 +87,49 @@ graph TB
     subgraph "用户层"
         A[插件开发者]
     end
-    
+
     subgraph "API 层"
         B[createPlugin]
         C[addCredential/addTool/addModel]
         D[run]
     end
-    
+
     subgraph "核心层"
         E[Registry<br/>功能注册]
         F[Transporter<br/>网络通信]
         G[Logger<br/>日志记录]
     end
-    
+
     subgraph "验证层"
         H[Schemas<br/>Zod 验证]
         I[Types<br/>类型定义]
     end
-    
+
     subgraph "工具层"
         J[Utils<br/>序列化等]
         K[Env<br/>环境配置]
     end
-    
+
     subgraph "外部系统"
         L[Hub Server<br/>WebSocket]
     end
-    
+
     A -->|使用| B
     B -->|创建| C
     C -->|启动| D
-    
+
     C -->|验证| H
     C -->|注册| E
     D -->|连接| F
     D -->|记录| G
-    
+
     H -->|约束| I
     E -->|使用| J
     F -->|读取| K
     G -->|读取| K
-    
+
     F <-->|WebSocket| L
-    
+
     style A fill:#e1f5ff
     style B fill:#fff4e1
     style C fill:#fff4e1
@@ -165,22 +165,22 @@ sequenceDiagram
     Dev->>Plugin: 1. 创建插件
     Plugin->>Registry: 初始化 Registry
     Plugin->>Trans: 初始化 Transporter
-    
+
     Dev->>Plugin: 2. addTool(toolDef)
     Plugin->>Schema: 验证 toolDef
     Schema-->>Plugin: 验证通过
     Plugin->>Registry: register("tool", toolDef)
-    
+
     Dev->>Plugin: 3. run()
     Plugin->>Trans: connect()
     Trans->>Server: WebSocket 连接
     Server-->>Trans: 连接成功
-    
+
     Plugin->>Registry: serialize()
     Registry-->>Plugin: 序列化数据
     Plugin->>Trans: push("shout", data)
     Trans->>Server: 发送插件信息
-    
+
     loop 工具调用
         Server->>Trans: channel.on("shout", message)
         Trans->>Plugin: 接收调用请求
@@ -206,41 +206,41 @@ graph LR
     subgraph "入口模块"
         A[index.ts]
     end
-    
+
     subgraph "核心模块"
         B[plugin.ts]
         C[env.ts]
     end
-    
+
     subgraph "注册系统"
         D[core/registry]
         E[core/logger]
         F[core/transporter]
     end
-    
+
     subgraph "验证系统"
         G[schemas/*]
         H[types/*]
     end
-    
+
     subgraph "工具系统"
         I[utils/*]
     end
-    
+
     A --> B
     B --> D
     B --> F
     B --> E
     B --> G
-    
+
     D --> H
     D --> I
-    
+
     F --> C
     E --> C
-    
+
     G --> H
-    
+
     style A fill:#ff6b6b
     style B fill:#4ecdc4
     style C fill:#45b7d1
@@ -339,19 +339,19 @@ PluginDefinition
 └── ToolDefinition
 
 // 属性系统
-NodeProperty
-├── NodePropertyString
-├── NodePropertyNumber
-├── NodePropertyBoolean
-├── NodePropertyArray
-│   └── items: NodeProperty | DiscriminatedUnion
-├── NodePropertyObject
-│   └── properties: NodeProperty[]
-├── NodePropertyCredentialId
-└── NodePropertyEncryptedString
+Property
+├── PropertyString
+├── PropertyNumber
+├── PropertyBoolean
+├── PropertyArray
+│   └── items: Property
+├── PropertyObject
+│   └── properties: Property[]
+├── PropertyCredentialId
+└── PropertyEncryptedString
 
 // UI 系统
-NodePropertyUIProps (20+ 种组件)
+PropertyUIProps (20+ 种组件)
 ├── Input, Textarea, CodeEditor
 ├── Select, MultiSelect, RadioGroup
 ├── Switch, Checkbox, Slider
@@ -379,7 +379,7 @@ NodePropertyUIProps (20+ 种组件)
 - `name` 命名规则（4-64 字符，字母开头，无特殊字符）
 - `I18nText` 必须包含 `en_US`
 - `DiscriminatedUnion` discriminator 唯一性
-- `NodeProperty.name` 不能包含 `.`, `[`, `]`
+- `Property.name` 不能包含 `.`, `[`, `]`
 - 属性名称去重
 
 ## 通信协议
@@ -434,7 +434,7 @@ ws(s)://hub-server/socket
 `Registry` 作为中央注册中心管理所有功能
 
 ### 3. Strategy Pattern
-不同类型的 `NodeProperty` 和 `NodePropertyUI` 使用策略模式
+不同类型的 `Property` 和 `PropertyUI` 使用策略模式
 
 ### 4. Observer Pattern
 WebSocket 事件监听使用观察者模式
@@ -448,10 +448,10 @@ WebSocket 事件监听使用观察者模式
 在 `FeatureType` 中添加新类型，并在 `Registry` 中添加对应的 Map
 
 ### 2. 新增 UI 组件
-在 `node-property-ui.ts` 中定义类型，在对应 Schema 中添加验证
+在 `property-ui.ts` 中定义类型，在对应 Schema 中添加验证
 
 ### 3. 新增属性类型
-在 `node-property.ts` 中定义类型，在 Schema 中添加验证规则
+在 `property.ts` 中定义类型，在 Schema 中添加验证规则
 
 ### 4. 自定义验证规则
 在 Schema 中使用 `refine` 或 `superRefine` 添加自定义验证
@@ -531,7 +531,6 @@ WebSocket 事件监听使用观察者模式
 - [ ] **文档增强**
   - 添加使用示例
   - 添加 API 文档生成
-  
 - [x] **文档清理** ✅ 已完成
 
 ## 参考资源
