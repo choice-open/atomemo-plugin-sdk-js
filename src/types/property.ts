@@ -266,9 +266,8 @@ export interface PropertyDiscriminatedUnion<
   type: "discriminated_union"
   /**
    * Possible object types in the array.
-   * only partial definition of PropertyObject is allowed to define the variants.
    */
-  any_of: Array<Pick<PropertyObject<string, TDiscriminator>, "name" | "type" | "properties">>
+  any_of: Array<PropertyObject<string, TDiscriminator>>
   /**
    * Property name used to discriminate between types
    */
