@@ -1,3 +1,5 @@
+export type { JsonValue } from "./plugin"
+
 export * from "./types/common"
 export * from "./types/definition"
 export * from "./types/property"

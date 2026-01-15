@@ -1,4 +1,5 @@
 import type { TransporterOptions } from "../core/transporter"
+import type { JsonValue } from "../plugin"
 import type { I18nText } from "./common"
 import type { Property } from "./property"
 
@@ -249,6 +250,9 @@ export interface ModelDefinition extends Omit<BaseDefinition, "parameters" | "se
 export interface ToolDefinition extends BaseDefinition {
   /**
    * The function to invoke when the tool is called.
+   *
+   * **Caution for developers**: You must ensure that the return value is JSON serializable.
    */
-  invoke: (...args: unknown[]) => Promise<unknown>
+  // biome-ignore lint/suspicious/noExplicitAny: Only tools knowns the args type.
+  invoke: (context: { args: any }) => Promise<JsonValue>
 }

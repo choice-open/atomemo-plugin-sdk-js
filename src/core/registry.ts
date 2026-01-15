@@ -24,6 +24,11 @@ export type FeatureType = keyof Pick<RegistryStore, "credential" | "data_source"
 
 export interface Registry {
   /**
+   * The plugin metadata and definitions, excluding transporter options.
+   */
+  plugin: PluginRegistry
+
+  /**
    * Registers a feature (credential, data source, model, or tool) into the registry.
    *
    * @param type - The type of the feature to register ("credential", "data_source", "model", or "tool").
@@ -90,6 +95,7 @@ export function createRegistry(plugin: PluginRegistry): Registry {
   }
 
   return {
+    plugin: store.plugin,
     register,
     resolve,
     serialize: () => {

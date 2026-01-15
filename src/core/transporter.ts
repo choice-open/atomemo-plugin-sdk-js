@@ -1,5 +1,5 @@
 import chalk from "chalk"
-import { Socket, type SocketConnectOption } from "phoenix"
+import { type Channel, Socket, type SocketConnectOption } from "phoenix"
 import { getEnv } from "../env"
 
 export interface TransporterOptions
@@ -22,10 +22,13 @@ export function createTransporter(options: TransporterOptions = {}) {
   const socket = new Socket(env.HUB_SERVER_WS_URL, {
     debug: env.DEBUG,
     heartbeatIntervalMs: options.heartbeatIntervalMs ?? 30 * 1000,
-    logger(kind, message, data) {
+    logger(kind, message: unknown, data) {
       const timestamp = chalk.bgGrey(` ${new Date().toLocaleString()} `)
       const coloredKind = chalk.underline.bold.yellow(kind.toUpperCase())
-      const coloredMessage = chalk.italic.dim(message)
+      const coloredMessage =
+        message instanceof Object && "message" in message
+          ? chalk.italic.red(message.message)
+          : chalk.italic.dim(message)
       const inspection = data ? Bun.inspect(data, { colors: true }) : ""
       console.debug(`${timestamp} ${coloredKind} ${coloredMessage}`, inspection)
     },
@@ -52,33 +55,38 @@ export function createTransporter(options: TransporterOptions = {}) {
 
   return {
     /**
-     * Connects to the mirror:lobby channel and returns a channel object and a dispose function.
+     * Connects to the specified channel and returns a channel object and a dispose function.
      *
      * @returns An object with a channel property and a dispose function.
      */
-    connect: () => {
-      const channel = socket.channel("mirror:lobby", {})
+    connect: (channelName: string) => {
+      return new Promise<{ channel: Channel; dispose: () => void }>((resolve, reject) => {
+        const channel = socket.channel(channelName, {})
 
-      channel
-        .join()
-        .receive("ok", (response) => {
-          socket.log("channel:joined", `Joined mirror:lobby successfully`, response)
-        })
-        .receive("error", (response) => {
-          socket.log("channel:error", `Failed to join mirror:lobby`, response)
-        })
-        .receive("timeout", (response) => {
-          socket.log("channel:timeout", `Timeout while joining mirror:lobby`, response)
-        })
+        channel
+          .join()
+          .receive("ok", (response) => {
+            socket.log("channel:joined", `Joined ${channelName} successfully`, response)
 
-      return {
-        channel,
-        dispose: () => {
-          channel.leave()
-          socket.disconnect()
-          process.exit(0)
-        },
-      }
+            resolve({
+              channel,
+              dispose: () => {
+                channel.leave()
+                socket.disconnect()
+                process.exit(0)
+              },
+            })
+          })
+          .receive("error", (response) => {
+            socket.log("channel:error", `Failed to join ${channelName}`, response)
+
+            reject(new Error(`Failed to join ${channelName}: ${response.reason}`))
+          })
+          .receive("timeout", (response) => {
+            socket.log("channel:timeout", `Timeout while joining ${channelName}`, response)
+            reject(new Error(`Timeout while joining ${channelName}`))
+          })
+      })
     },
   }
 }

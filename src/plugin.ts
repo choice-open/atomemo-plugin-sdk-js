@@ -1,5 +1,4 @@
-import chalk from "chalk"
-import { logger } from "./core/logger"
+import { z } from "zod"
 import { createRegistry } from "./core/registry"
 import { createTransporter } from "./core/transporter"
 import { CredentialDefinitionSchema, ModelDefinitionSchema, ToolDefinitionSchema } from "./schemas"
@@ -10,7 +9,15 @@ import type {
   ToolDefinition,
 } from "./types"
 
-const log = logger.child({ name: "Phoenix" })
+const JsonValueSchema = z.json()
+export type JsonValue = z.infer<typeof JsonValueSchema>
+
+const ToolInvokeMessage = z.object({
+  request_id: z.string(),
+  plugin_name: z.string(),
+  tool_name: z.string(),
+  parameters: z.json(),
+})
 
 /**
  * Creates a new plugin instance with the specified options.
@@ -61,19 +68,26 @@ export function createPlugin<Locales extends string[]>(options: PluginDefinition
      * Starts the plugin's main process. This establishes the transporter connection and
      * sets up signal handlers for graceful shutdown on SIGINT and SIGTERM.
      */
-    run: () => {
-      const { channel, dispose } = transporter.connect()
+    run: async () => {
+      console.debug(Bun.env.NODE_ENV)
+      const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
 
-      channel.push("shout", registry.serialize())
+      channel.push("register_plugin", registry.serialize().plugin)
 
-      channel.on("shout", async (message) => {
-        if (message.providerName && message.featureName) {
-          const { providerName, featureName } = message
-          const feature = registry.resolve("tool", featureName)
-          const response = await feature.invoke.apply(null, message.args)
+      channel.on("invoke_tool", async (message) => {
+        const request_id = message.request_id
 
-          const data = chalk.blueBright(JSON.stringify(response, null, 2))
-          log.trace(`${providerName}-${featureName} response:\n${data}`)
+        try {
+          const event = ToolInvokeMessage.parse(message)
+          const tool = registry.resolve("tool", event.tool_name)
+          const data = await tool.invoke({ args: event.parameters })
+          channel.push("invoke_tool_response", { request_id, data })
+        } catch (error) {
+          if (error instanceof Error) {
+            channel.push("invoke_tool_error", { request_id, ...error })
+          } else {
+            channel.push("invoke_tool_error", { request_id, message: "Unexpected Error" })
+          }
         }
       })
 

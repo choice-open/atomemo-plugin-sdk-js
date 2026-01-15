@@ -1,5 +1,6 @@
 import type { IsEqual } from "type-fest"
 import { z } from "zod"
+import type { JsonValue } from "../plugin"
 import type {
   BaseDefinition,
   CredentialDefinition,
@@ -20,7 +21,10 @@ export const BaseDefinitionSchema = z.object({
   // 2. 开头只能是英文字母，结尾不能是_和-
   // 3. _和-不能连续出现多次
   // 4. 最小长度 4，最大长度 64
-  name: z.string().regex(/^[a-zA-Z](?:(?![_-]{2,})[a-zA-Z0-9_-]){3,63}[a-zA-Z0-9]$/),
+  name: z.string().regex(/^[a-zA-Z](?:(?![_-]{2,})[a-zA-Z0-9_-]){3,63}[a-zA-Z0-9]$/, {
+    error:
+      "Invalid name, should match the following rules: 1. only English letters, numbers, _ and - 2. start with English letter, end with English letter or number 3. _ and - cannot appear consecutively more than twice 4. minimum length 4, maximum length 64",
+  }),
   display_name: I18nEntrySchema,
   description: I18nEntrySchema,
   icon: z.string(),
@@ -61,13 +65,10 @@ export type DataSourceDefinition = z.infer<typeof DataSourceDefinitionSchema>
 
 export const ModelDefinitionSchema = z.object({
   ...BaseDefinitionSchema.omit({ parameters: true, settings: true }).shape,
-  name: z.string().refine(
-    (value) => {
-      const schema = z.templateLiteral([z.string(), z.literal("/"), z.string()])
-      return schema.safeParse(value).success
-    },
-    { error: "Invalid model name, should be in the format of `model_provider/model_name`" },
-  ),
+  name: z.string().regex(/^[a-zA-Z](?:(?![_-]{2,})[a-zA-Z0-9_/-]){3,63}[a-zA-Z0-9]$/, {
+    error:
+      "Invalid model name, should match the following rules: 1. only English letters, numbers, _ and - 2. start with English letter, end with English letter or number 3. _ and - cannot appear consecutively more than twice 4. minimum length 4, maximum length 64 5. allow '/' in the middle",
+  }),
   model_type: z.literal("llm"),
   default_endpoint: z.httpUrl().optional(),
   input_modalities: z.array(z.enum(["file", "image", "text"])),
@@ -147,7 +148,10 @@ export const ModelDefinitionSchema = z.object({
 
 export const ToolDefinitionSchema = z.object({
   ...BaseDefinitionSchema.shape,
-  invoke: z.function({ input: z.array(z.unknown()), output: z.instanceof(Promise<unknown>) }),
+  invoke: z.function({
+    input: z.tuple([z.object({ args: z.any() })]),
+    output: z.instanceof(Promise<JsonValue>),
+  }),
 })
 {
   const _: IsEqual<z.infer<typeof ToolDefinitionSchema>, ToolDefinition> = true
