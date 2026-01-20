@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, mock, spyOn, test } from "bun:test"
 import type { Channel, Push, Socket } from "phoenix"
 
 // We'll dynamically import createTransporter after mocking phoenix
-let createTransporter: typeof import("../../src/core/transporter").createTransporter
+let createTransporter: typeof import("../../src/transporter").createTransporter
 
 // Store receive callbacks for testing
 let joinReceiveCallbacks: Record<string, (response?: unknown) => void> = {}
@@ -103,7 +103,7 @@ mock.module("phoenix", () => ({
 }))
 
 // Import transporter after mocking - it will use mocked phoenix
-const transporterModule = await import("../../src/core/transporter")
+const transporterModule = await import("../../src/transporter")
 createTransporter = transporterModule.createTransporter
 
 describe("transporter", () => {

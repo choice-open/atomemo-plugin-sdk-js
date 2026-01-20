@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, test } from "bun:test"
-import { createRegistry } from "../../src/core/registry"
+import { createRegistry } from "../../src/registry"
 import type {
   CredentialDefinition,
-  DataSourceDefinition,
   ModelDefinition,
   PluginDefinition,
   ToolDefinition,
@@ -64,18 +63,6 @@ describe("registry", () => {
       }
 
       expect(() => registry.register("model", model)).not.toThrow()
-    })
-
-    test("should register a data source successfully", () => {
-      const dataSource: DataSourceDefinition = {
-        name: "test-data-source",
-        display_name: { en_US: "Test Data Source" },
-        description: { en_US: "A test data source" },
-        icon: "📊",
-        parameters: [],
-      }
-
-      expect(() => registry.register("data_source", dataSource)).not.toThrow()
     })
 
     test("should overwrite feature with same name", () => {
@@ -150,20 +137,6 @@ describe("registry", () => {
       registry.register("model", model)
       const resolved = registry.resolve("model", "test-provider/test-model")
       expect(resolved).toBe(model)
-    })
-
-    test("should resolve a registered data source", () => {
-      const dataSource: DataSourceDefinition = {
-        name: "test-data-source",
-        display_name: { en_US: "Test Data Source" },
-        description: { en_US: "A test data source" },
-        icon: "📊",
-        parameters: [],
-      }
-
-      registry.register("data_source", dataSource)
-      const resolved = registry.resolve("data_source", "test-data-source")
-      expect(resolved).toBe(dataSource)
     })
 
     test("should throw error when feature is not registered", () => {
@@ -254,7 +227,6 @@ describe("registry", () => {
     test("should serialize empty arrays when no features registered", () => {
       const serialized = registry.serialize()
       expect(serialized.plugin.credentials).toEqual([])
-      expect(serialized.plugin.data_sources).toEqual([])
       expect(serialized.plugin.models).toEqual([])
       expect(serialized.plugin.tools).toEqual([])
     })
@@ -265,14 +237,6 @@ describe("registry", () => {
         display_name: { en_US: "Test Credential" },
         description: { en_US: "A test credential" },
         icon: "🔑",
-        parameters: [],
-      }
-
-      const dataSource: DataSourceDefinition = {
-        name: "test-data-source",
-        display_name: { en_US: "Test Data Source" },
-        description: { en_US: "A test data source" },
-        icon: "📊",
         parameters: [],
       }
 
@@ -297,13 +261,11 @@ describe("registry", () => {
       }
 
       registry.register("credential", credential)
-      registry.register("data_source", dataSource)
       registry.register("model", model)
       registry.register("tool", tool)
 
       const serialized = registry.serialize()
       expect(serialized.plugin.credentials).toHaveLength(1)
-      expect(serialized.plugin.data_sources).toHaveLength(1)
       expect(serialized.plugin.models).toHaveLength(1)
       expect(serialized.plugin.tools).toHaveLength(1)
     })

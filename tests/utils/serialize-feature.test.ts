@@ -1,6 +1,9 @@
 import { describe, expect, test } from "bun:test"
-import type { Feature } from "../../src/core/provider"
+import type { CredentialDefinition } from "../../src/types"
 import { serializeFeature } from "../../src/utils/serialize-feature"
+
+// Feature type for testing - any object with name and description
+type Feature = Pick<CredentialDefinition, "name" | "description">
 
 describe("serializeFeature", () => {
   test("should serialize feature with only primitive values", () => {
@@ -112,14 +115,14 @@ describe("serializeFeature", () => {
   })
 
   test("should handle empty feature object", () => {
-    const feature: Feature = {
+    const feature = {
       name: {
         en_US: "Test Feature",
       },
       description: {
         en_US: "Test Description",
       },
-    }
+    } satisfies Feature
     const result = serializeFeature(feature)
     expect(result).toEqual({
       name: {
