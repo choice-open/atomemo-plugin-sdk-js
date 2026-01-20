@@ -1,14 +1,14 @@
 {
-  "name": "@choiceopen/automation-plugin-sdk-js",
+  "name": "@choiceopen/atomemo-plugin-sdk-js",
   "version": "0.1.0",
-  "description": "JavaScript/TypeScript SDK for developing Choiceform automation plugins",
-  "homepage": "https://github.com/choice-open/automation-plugin-sdk-js#readme",
+  "description": "JavaScript/TypeScript SDK for developing Choiceform Atomemo plugins",
+  "homepage": "https://github.com/choice-open/atomemo-plugin-sdk-js#readme",
   "bugs": {
-    "url": "https://github.com/choice-open/automation-plugin-sdk-js/issues"
+    "url": "https://github.com/choice-open/atomemo-plugin-sdk-js/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/choice-open/automation-plugin-sdk-js.git"
+    "url": "git+https://github.com/choice-open/atomemo-plugin-sdk-js.git"
   },
   "license": "MIT",
   "author": "Albert Yu <albert.yu@choiceform.com>",

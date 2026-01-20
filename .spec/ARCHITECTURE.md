@@ -1,12 +1,12 @@
 # 项目架构文档
 
-**项目名称：** @choiceopen/automation-plugin-sdk-js  
+**项目名称：** @choiceopen/atomemo-plugin-sdk-js  
 **版本：** 0.1.0  
 **最后更新：** 2025-01-27
 
 ## 概述
 
-这是一个用于开发 Choiceform 自动化插件的 JavaScript/TypeScript SDK。该 SDK 提供了创建、注册和管理插件功能的完整框架，支持通过 WebSocket 与 Hub Server 进行通信。
+这是一个用于开发 Choiceform Atomemo Plugin 的 JavaScript/TypeScript SDK。该 SDK 提供了创建、注册和管理插件功能的完整框架，支持通过 WebSocket 与 Hub Server 进行通信。
 
 ## 主要功能
 
@@ -293,5 +293,5 @@ SDK 支持以下功能类型：
 
 ## 相关资源
 
-- [项目仓库](https://github.com/choice-open/automation-plugin-sdk-js)
+- [项目仓库](https://github.com/choice-open/atomemo-plugin-sdk-js)
 - [Schema 包](https://www.npmjs.com/package/@choiceopen/atomemo-plugin-schema)

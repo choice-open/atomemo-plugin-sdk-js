@@ -1,4 +1,4 @@
-# Choiceform Automation Plugin JavaScript/TypeScript SDK
+# Choiceform Atomemo Plugin JavaScript/TypeScript SDK
 
 ## Development
 
