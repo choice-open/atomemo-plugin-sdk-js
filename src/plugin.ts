@@ -1,16 +1,12 @@
+import {
+  CredentialDefinitionSchema,
+  ModelDefinitionSchema,
+  ToolDefinitionSchema,
+} from "@choiceopen/atomemo-plugin-schema/schemas"
+import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
 import { z } from "zod"
-import { createRegistry } from "./core/registry"
-import { createTransporter } from "./core/transporter"
-import { CredentialDefinitionSchema, ModelDefinitionSchema, ToolDefinitionSchema } from "./schemas"
-import type {
-  CredentialDefinition,
-  ModelDefinition,
-  PluginDefinition,
-  ToolDefinition,
-} from "./types"
-
-const JsonValueSchema = z.json()
-export type JsonValue = z.infer<typeof JsonValueSchema>
+import { createRegistry } from "./registry"
+import { createTransporter, type TransporterOptions } from "./transporter"
 
 const ToolInvokeMessage = z.object({
   request_id: z.string(),
@@ -19,13 +15,19 @@ const ToolInvokeMessage = z.object({
   parameters: z.json(),
 })
 
+type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
+type ToolDefinition = z.infer<typeof ToolDefinitionSchema>
+type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
+
 /**
  * Creates a new plugin instance with the specified options.
  *
  * @param options - The options for configuring the plugin instance.
  * @returns An object containing methods to define providers and run the plugin process.
  */
-export function createPlugin<Locales extends string[]>(options: PluginDefinition<Locales>) {
+export function createPlugin<Locales extends string[]>(
+  options: PluginDefinition<Locales, TransporterOptions>,
+) {
   const { transporterOptions, version = process.env.npm_package_version, ...plugin } = options
   const registry = createRegistry(Object.assign(plugin, { version }))
   const transporter = createTransporter(transporterOptions)
@@ -69,7 +71,6 @@ export function createPlugin<Locales extends string[]>(options: PluginDefinition
      * sets up signal handlers for graceful shutdown on SIGINT and SIGTERM.
      */
     run: async () => {
-      console.debug(Bun.env.NODE_ENV)
       const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
 
       channel.push("register_plugin", registry.serialize().plugin)

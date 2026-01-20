@@ -1,5 +1,5 @@
 import pino from "pino"
-import { getEnv } from "../env"
+import { getEnv } from "./env"
 
 const env = getEnv()
 

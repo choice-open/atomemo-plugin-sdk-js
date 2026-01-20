@@ -1,26 +1,36 @@
+import type {
+  CredentialDefinitionSchema,
+  ModelDefinitionSchema,
+  ToolDefinitionSchema,
+} from "@choiceopen/atomemo-plugin-schema/schemas"
+import type {
+  DataSourceDefinition,
+  PluginDefinition,
+} from "@choiceopen/atomemo-plugin-schema/types"
 import { assert } from "es-toolkit"
 import type { JsonValue, Simplify } from "type-fest"
-import type {
-  CredentialDefinition,
-  DataSourceDefinition,
-  Feature,
-  ModelDefinition,
-  PluginDefinition,
-  ToolDefinition,
-} from "../types"
-import { serializeFeature } from "../utils/serialize-feature"
+import type { z } from "zod"
+import type { TransporterOptions } from "./transporter"
+import { serializeFeature } from "./utils/serialize-feature"
 
-type PluginRegistry = Simplify<Omit<PluginDefinition, "transporterOptions">>
+type PluginRegistry = Simplify<
+  Omit<PluginDefinition<string[], TransporterOptions>, "transporterOptions">
+>
+
+type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
+type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
+type ToolDefinition = z.infer<typeof ToolDefinitionSchema>
+type Feature = CredentialDefinition | DataSourceDefinition | ModelDefinition | ToolDefinition
 
 interface RegistryStore {
   plugin: PluginRegistry
   credential: Map<CredentialDefinition["name"], CredentialDefinition>
-  data_source: Map<DataSourceDefinition["name"], DataSourceDefinition>
+  // data_source: Map<DataSourceDefinition["name"], DataSourceDefinition>
   model: Map<ModelDefinition["name"], ModelDefinition>
   tool: Map<ToolDefinition["name"], ToolDefinition>
 }
 
-export type FeatureType = keyof Pick<RegistryStore, "credential" | "data_source" | "model" | "tool">
+export type FeatureType = keyof Pick<RegistryStore, "credential" | "model" | "tool">
 
 export interface Registry {
   /**
@@ -36,7 +46,7 @@ export interface Registry {
    */
   register: {
     (type: "credential", feature: CredentialDefinition): void
-    (type: "data_source", feature: DataSourceDefinition): void
+    // (type: "data_source", feature: DataSourceDefinition): void
     (type: "model", feature: ModelDefinition): void
     (type: "tool", feature: ToolDefinition): void
   }
@@ -51,7 +61,7 @@ export interface Registry {
    */
   resolve: {
     (type: "credential", featureName: string): CredentialDefinition
-    (type: "data_source", featureName: string): DataSourceDefinition
+    // (type: "data_source", featureName: string): DataSourceDefinition
     (type: "model", featureName: string): ModelDefinition
     (type: "tool", featureName: string): ToolDefinition
   }
@@ -70,13 +80,13 @@ export function createRegistry(plugin: PluginRegistry): Registry {
   const store: RegistryStore = {
     plugin,
     credential: new Map(),
-    data_source: new Map(),
+    // data_source: new Map(),
     model: new Map(),
     tool: new Map(),
   }
 
   function register(type: "credential", feature: CredentialDefinition): void
-  function register(type: "data_source", feature: DataSourceDefinition): void
+  // function register(type: "data_source", feature: DataSourceDefinition): void
   function register(type: "model", feature: ModelDefinition): void
   function register(type: "tool", feature: ToolDefinition): void
   // biome-ignore lint/suspicious/noExplicitAny: any is used to avoid type errors
@@ -85,7 +95,7 @@ export function createRegistry(plugin: PluginRegistry): Registry {
   }
 
   function resolve(type: "credential", featureName: string): CredentialDefinition
-  function resolve(type: "data_source", featureName: string): DataSourceDefinition
+  // function resolve(type: "data_source", featureName: string): DataSourceDefinition
   function resolve(type: "model", featureName: string): ModelDefinition
   function resolve(type: "tool", featureName: string): ToolDefinition
   function resolve(type: FeatureType, featureName: string): Feature {
@@ -104,7 +114,7 @@ export function createRegistry(plugin: PluginRegistry): Registry {
       return {
         plugin: Object.assign(store.plugin, {
           credentials: Array.from(store.credential.values()).map(serializeFeature),
-          data_sources: Array.from(store.data_source.values()).map(serializeFeature),
+          // data_sources: Array.from(store.data_source.values()).map(serializeFeature),
           models: Array.from(store.model.values()).map(serializeFeature),
           tools: Array.from(store.tool.values()).map(serializeFeature),
         }),

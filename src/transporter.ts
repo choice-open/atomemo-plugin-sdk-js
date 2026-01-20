@@ -1,6 +1,6 @@
 import chalk from "chalk"
 import { type Channel, Socket, type SocketConnectOption } from "phoenix"
-import { getEnv } from "../env"
+import { getEnv } from "./env"
 
 export interface TransporterOptions
   extends Partial<Pick<SocketConnectOption, "heartbeatIntervalMs">> {
@@ -44,6 +44,12 @@ export function createTransporter(options: TransporterOptions = {}) {
   })
 
   socket.onError((error, transport, establishedConnections) => {
+    if (error instanceof ErrorEvent && error.message.includes("failed: Expected 101 status code")) {
+      console.error("Error: Can't connect to the Plugin Hub server.\n")
+      console.error("This is usually because the Debug API Key is missing or has expired.\n")
+      console.error("Run `atomemo plugin refresh-key` to get a new key.\n")
+      process.exit(1)
+    }
     options.onError?.(error, transport, establishedConnections)
   })
 
