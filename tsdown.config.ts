@@ -7,6 +7,5 @@ export default defineConfig({
     devExports: "development",
   },
   format: "esm",
-  platform: "neutral",
   sourcemap: true,
 })
