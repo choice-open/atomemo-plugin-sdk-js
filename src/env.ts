@@ -9,6 +9,8 @@ declare module "bun" {
     readonly DEBUG: boolean
     /** The API key for the Hub Server. */
     readonly DEBUG_API_KEY: string | undefined
+    /** The organization ID for the plugin. */
+    readonly ORGANIZATION_ID: string | undefined
   }
 }
 
@@ -34,6 +36,10 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development").meta({
     description: `The environment mode. This will be "development" by default.`,
   }),
+  ORGANIZATION_ID: z
+    .string()
+    .optional()
+    .meta({ description: `The organization ID for the plugin.` }),
 })
 
 let env: z.infer<typeof EnvSchema> | undefined

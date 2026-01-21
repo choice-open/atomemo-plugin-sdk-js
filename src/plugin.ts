@@ -5,6 +5,8 @@ import {
 } from "@choiceopen/atomemo-plugin-schema/schemas"
 import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
 import { z } from "zod"
+import { getEnv } from "./env"
+import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
 
@@ -25,11 +27,42 @@ type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
  * @param options - The options for configuring the plugin instance.
  * @returns An object containing methods to define providers and run the plugin process.
  */
-export function createPlugin<Locales extends string[]>(
+export async function createPlugin<Locales extends string[]>(
   options: PluginDefinition<Locales, TransporterOptions>,
 ) {
+  // Validate organization ID before creating registry
+  const env = getEnv()
+  if (!env.ORGANIZATION_ID) {
+    console.error("DEBUG API Key is invalid. Please run `atomemo plugin refresh-key`")
+    process.exit(1)
+  }
+
+  // Fetch user session and validate organization
+  let user: { name: string; email: string; inherentOrganizationId?: string }
+  try {
+    const sessionData = await getSession()
+    user = sessionData.user
+
+    if (user.inherentOrganizationId !== env.ORGANIZATION_ID) {
+      console.info(
+        "Atomemo does not currently support developing plugins for other organizations. Please wait for official support.",
+      )
+      process.exit(0)
+    }
+  } catch (error) {
+    console.error("Failed to fetch session:", error instanceof Error ? error.message : error)
+    process.exit(1)
+  }
+
+  // Merge user info into plugin options
   const { transporterOptions, version = process.env.npm_package_version, ...plugin } = options
-  const registry = createRegistry(Object.assign(plugin, { version }))
+  const pluginDefinition = Object.assign(plugin, {
+    author: user.name,
+    email: user.email,
+    version,
+  })
+
+  const registry = createRegistry(pluginDefinition)
   const transporter = createTransporter(transporterOptions)
 
   return {
