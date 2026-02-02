@@ -5,12 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.1] - 2026-02-02
+
+### Changed
+- Renamed environment variables for consistency:
+  - `HUB_SERVER_WS_URL` → `HUB_WS_URL`
+  - `DEBUG_API_KEY` → `HUB_DEBUG_API_KEY`
+  - `ORGANIZATION_ID` → `HUB_ORGANIZATION_ID`
+- Added `HUB_MODE` environment variable (`"debug"` | `"release"`, defaults to `"debug"`)
+- Updated transporter URL construction to include mode in socket path
+- Plugin definition now includes `organization_id` field
+- Tool invocation now receives `{ credentials, parameters }` instead of just `parameters`
+- Plugin registration is now conditional based on `HUB_MODE`
+
+## [0.1.0] - 2026-01-20
 
 ### Changed
 - Restructured project by flattening core directory structure
   - Moved `src/core/` modules to `src/` root directory
   - Updated all import paths accordingly
+- Changed terminology from "automation" to "atomemo" across the codebase
+- Updated `@choiceopen/atomemo-plugin-schema` dependency from ^0.1.2 to ^0.1.3
 
 ### Removed
 - Deprecated schemas and types modules
@@ -28,20 +43,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `tests/README.md` - Test structure documentation
     - `tests/core/README.md` - Core module tests documentation
     - `tests/utils/README.md` - Utility tests documentation
+- OneAuth authentication and configuration system
+  - Added `getSession` function to fetch user session data
+  - Added session validation in `createPlugin` function
+  - Enhanced plugin initialization with user info (name, email)
+  - Added organization ID validation
 
 ### Fixed
 - Fixed test file import paths (from `src/core/` to `src/`)
 - Removed tests for unimplemented `data_source` feature
+- Fixed build configurations
 
 ### Dependencies
-- Added `@choiceopen/atomemo-plugin-schema@^0.1.2`
+- Added `@choiceopen/atomemo-plugin-schema@^0.1.3`
 - Added `phoenix@^1.8.3`
+- Added `pino-pretty@^13.1.3`
+- Added `type-fest@^5.4.1`
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-## [0.1.0] - 2026-01-20
-
-Initial release.
-
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/releases/tag/v0.1.0

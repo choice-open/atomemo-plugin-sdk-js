@@ -5,6 +5,8 @@ import {
 } from "@choiceopen/atomemo-plugin-schema/schemas"
 import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
 import { z } from "zod"
+import { getEnv } from "./env"
+import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
 
@@ -13,6 +15,7 @@ const ToolInvokeMessage = z.object({
   plugin_name: z.string(),
   tool_name: z.string(),
   parameters: z.json(),
+  credentials: z.json(),
 })
 
 type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
@@ -25,11 +28,43 @@ type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
  * @param options - The options for configuring the plugin instance.
  * @returns An object containing methods to define providers and run the plugin process.
  */
-export function createPlugin<Locales extends string[]>(
+export async function createPlugin<Locales extends string[]>(
   options: PluginDefinition<Locales, TransporterOptions>,
 ) {
+  // Validate organization ID before creating registry
+  const env = getEnv()
+  if (!env.HUB_ORGANIZATION_ID) {
+    console.error("DEBUG API Key is invalid. Please run `atomemo plugin refresh-key`")
+    process.exit(1)
+  }
+
+  // Fetch user session and validate organization
+  let user: { name: string; email: string; inherentOrganizationId?: string }
+  try {
+    const sessionData = await getSession()
+    user = sessionData.user
+
+    if (user.inherentOrganizationId !== env.HUB_ORGANIZATION_ID) {
+      console.info(
+        "Atomemo does not currently support developing plugins for other organizations. Please wait for official support.",
+      )
+      process.exit(0)
+    }
+  } catch (error) {
+    console.error("Failed to fetch session:", error instanceof Error ? error.message : error)
+    process.exit(1)
+  }
+
+  // Merge user info into plugin options
   const { transporterOptions, version = process.env.npm_package_version, ...plugin } = options
-  const registry = createRegistry(Object.assign(plugin, { version }))
+  const pluginDefinition = Object.assign(plugin, {
+    author: user.name,
+    email: user.email,
+    organization_id: env.HUB_ORGANIZATION_ID,
+    version,
+  })
+
+  const registry = createRegistry(pluginDefinition)
   const transporter = createTransporter(transporterOptions)
 
   return {
@@ -73,7 +108,9 @@ export function createPlugin<Locales extends string[]>(
     run: async () => {
       const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
 
-      channel.push("register_plugin", registry.serialize().plugin)
+      if (env.HUB_MODE === "debug") {
+        channel.push("register_plugin", registry.serialize().plugin)
+      }
 
       channel.on("invoke_tool", async (message) => {
         const request_id = message.request_id
@@ -81,7 +118,8 @@ export function createPlugin<Locales extends string[]>(
         try {
           const event = ToolInvokeMessage.parse(message)
           const tool = registry.resolve("tool", event.tool_name)
-          const data = await tool.invoke({ args: event.parameters })
+          const { credentials, parameters } = event
+          const data = await tool.invoke({ args: { credentials, parameters } })
           channel.push("invoke_tool_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {

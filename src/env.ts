@@ -3,25 +3,36 @@ import z from "zod"
 
 declare module "bun" {
   interface Env {
+    /** The Hub Server runtime mode. */
+    readonly HUB_MODE: "debug" | "release"
     /** The URL of the Hub Server WebSocket. */
-    readonly HUB_SERVER_WS_URL: string | undefined
+    readonly HUB_WS_URL: string | undefined
     /** Whether to enable debug mode. */
     readonly DEBUG: boolean
     /** The API key for the Hub Server. */
-    readonly DEBUG_API_KEY: string | undefined
+    readonly HUB_DEBUG_API_KEY: string | undefined
+    /** The organization ID for the plugin. */
+    readonly HUB_ORGANIZATION_ID: string | undefined
   }
 }
 
 const EnvSchema = z.object({
-  HUB_SERVER_WS_URL: z.url({
-    protocol: /wss?/,
-    error: "HUB_SERVER_WS_URL must be a valid WebSocket URL.",
+  HUB_MODE: z.enum(["debug", "release"]).default("debug").meta({
+    description: `The Hub Server runtime mode. This will be "debug" by default.`,
   }),
-  DEBUG_API_KEY: z
+  HUB_WS_URL: z.url({
+    protocol: /wss?/,
+    error: "HUB_WS_URL must be a valid WebSocket URL.",
+  }),
+  HUB_DEBUG_API_KEY: z
     .string({
-      error: "DEBUG_API_KEY must be a string.",
+      error: "HUB_DEBUG_API_KEY must be a string.",
     })
     .meta({ description: `The API key for the Hub Server` }),
+  HUB_ORGANIZATION_ID: z
+    .string()
+    .optional()
+    .meta({ description: `The organization ID for the plugin.` }),
   DEBUG: z
     .string()
     .optional()

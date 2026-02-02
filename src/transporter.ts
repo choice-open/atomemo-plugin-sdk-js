@@ -19,7 +19,8 @@ export interface TransporterOptions
 export function createTransporter(options: TransporterOptions = {}) {
   const env = getEnv()
 
-  const socket = new Socket(env.HUB_SERVER_WS_URL, {
+  const url = `${env.HUB_WS_URL}/${env.HUB_MODE}_socket`
+  const socket = new Socket(url, {
     debug: env.DEBUG,
     heartbeatIntervalMs: options.heartbeatIntervalMs ?? 30 * 1000,
     logger(kind, message: unknown, data) {
@@ -32,7 +33,7 @@ export function createTransporter(options: TransporterOptions = {}) {
       const inspection = data ? Bun.inspect(data, { colors: true }) : ""
       console.debug(`${timestamp} ${coloredKind} ${coloredMessage}`, inspection)
     },
-    params: { api_key: env.DEBUG_API_KEY },
+    params: { api_key: env.HUB_DEBUG_API_KEY },
   })
 
   socket.onOpen(() => {
