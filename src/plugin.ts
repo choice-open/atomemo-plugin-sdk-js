@@ -12,7 +12,6 @@ import { createTransporter, type TransporterOptions } from "./transporter"
 
 const ToolInvokeMessage = z.object({
   request_id: z.string(),
-  plugin_name: z.string(),
   tool_name: z.string(),
   parameters: z.json(),
   credentials: z.json(),
