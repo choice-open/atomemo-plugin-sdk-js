@@ -1,4 +1,4 @@
-import { isNil } from "es-toolkit/predicate"
+import { isNil, isString } from "es-toolkit/predicate"
 import z from "zod"
 
 declare module "bun" {
@@ -30,8 +30,7 @@ const EnvSchema = z.object({
     })
     .optional()
     .refine((value) => {
-      if (Bun.env.NODE_ENV === "production") return true
-      return isNil(value)
+      return Bun.env.NODE_ENV === "production" || (isString(value) && value.length > 0)
     })
     .meta({ description: `The API key for the Hub Server` }),
   HUB_ORGANIZATION_ID: z
