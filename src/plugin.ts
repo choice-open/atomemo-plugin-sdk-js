@@ -32,14 +32,16 @@ export async function createPlugin<Locales extends string[]>(
 ) {
   // Validate organization ID before creating registry
   const env = getEnv()
-  if (!env.HUB_ORGANIZATION_ID) {
+  const isDebugMode = env.HUB_MODE === "debug"
+
+  if (isDebugMode && !env.HUB_ORGANIZATION_ID) {
     console.error("DEBUG API Key is invalid. Please run `atomemo plugin refresh-key`")
     process.exit(1)
   }
 
   let user: { name: string; email: string; inherentOrganizationId?: string }
 
-  if (env.HUB_MODE === "debug") {
+  if (isDebugMode) {
     // Fetch user session and validate organization
     try {
       const sessionData = await getSession()
@@ -113,9 +115,12 @@ export async function createPlugin<Locales extends string[]>(
      * sets up signal handlers for graceful shutdown on SIGINT and SIGTERM.
      */
     run: async () => {
-      const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
+      const topic = isDebugMode
+        ? `debug_plugin:${registry.plugin.name}`
+        : `release_plugin:${pluginDefinition.organization_id}__${registry.plugin.name}__${env.HUB_MODE}__${pluginDefinition.version}`
+      const { channel, dispose } = await transporter.connect(topic)
 
-      if (env.HUB_MODE === "debug") {
+      if (isDebugMode) {
         const definition = registry.serialize().plugin
         channel.push("register_plugin", definition)
         await Bun.write("definition.json", JSON.stringify(definition, null, 2))
