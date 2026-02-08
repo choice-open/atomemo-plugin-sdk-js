@@ -37,21 +37,29 @@ export async function createPlugin<Locales extends string[]>(
     process.exit(1)
   }
 
-  // Fetch user session and validate organization
   let user: { name: string; email: string; inherentOrganizationId?: string }
-  try {
-    const sessionData = await getSession()
-    user = sessionData.user
 
-    if (user.inherentOrganizationId !== env.HUB_ORGANIZATION_ID) {
-      console.info(
-        "Atomemo does not currently support developing plugins for other organizations. Please wait for official support.",
-      )
-      process.exit(0)
+  if (env.HUB_MODE === "debug") {
+    // Fetch user session and validate organization
+    try {
+      const sessionData = await getSession()
+      user = sessionData.user
+
+      if (user.inherentOrganizationId !== env.HUB_ORGANIZATION_ID) {
+        console.info(
+          "Atomemo does not currently support developing plugins for other organizations. Please wait for official support.",
+        )
+        process.exit(0)
+      }
+    } catch (error) {
+      console.error("Failed to fetch session:", error instanceof Error ? error.message : error)
+      process.exit(1)
     }
-  } catch (error) {
-    console.error("Failed to fetch session:", error instanceof Error ? error.message : error)
-    process.exit(1)
+  } else {
+    const definition = z
+      .looseObject({ author: z.string(), email: z.string() })
+      .parse(await Bun.file("definition.json").json())
+    user = { name: definition.author, email: definition.email }
   }
 
   // Merge user info into plugin options
@@ -106,8 +114,6 @@ export async function createPlugin<Locales extends string[]>(
      */
     run: async () => {
       const { channel, dispose } = await transporter.connect(`debug_plugin:${registry.plugin.name}`)
-
-      console.log("ENV", Bun.env.NODE_ENV)
 
       if (env.HUB_MODE === "debug") {
         const definition = registry.serialize().plugin
