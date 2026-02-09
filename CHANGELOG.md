@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.2.0] - 2026-02-09
+
+### Added
+- Introduced `CredentialAuthenticateMessage` schema for improved credential authentication handling in the plugin
+- Added `credential_authenticate` event listener to support credential authentication functionality
+- Enhanced error handling for credential authentication responses
+
+### Changed
+- Updated dependencies:
+  - `@choiceopen/atomemo-plugin-schema` from ^0.1.8 to ^0.2.1
+  - `type-fest` from ^5.4.3 to ^5.4.4
+  - `dotenv` from ^17.2.3 to ^17.2.4
+  - `tsdown` from ^0.19.0 to ^0.20.3
+  - `zod` from ^4.3.5 to ^4.3.6
+- Improved `ToolInvokeMessage` schema to allow `credentials` field to be optional
+- Updated build script to use `--clean` option to ensure fresh builds
+
+### Fixed
+- Fixed newline character issue in `transporter.ts`
+
 ## [0.1.8] - 2026-02-08
 
 ### Fixed
@@ -109,7 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.8...v0.2.0
 [0.1.8]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.5...v0.1.6
