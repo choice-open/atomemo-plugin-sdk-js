@@ -12,9 +12,9 @@ import { createTransporter, type TransporterOptions } from "./transporter"
 
 const CredentialAuthenticateMessage = z.object({
   request_id: z.string(),
+  credential: z.record(z.string(), z.string()),
   credential_name: z.string(),
-  parameters: z.looseObject({ extra: z.record(z.string(), z.any()) }),
-  credentials: z.record(z.string(), z.string()),
+  extra: z.record(z.string(), z.any()),
 })
 
 const ToolInvokeMessage = z.object({
@@ -138,9 +138,9 @@ export async function createPlugin<Locales extends string[]>(
 
         try {
           const event = CredentialAuthenticateMessage.parse(message)
-          const credential = registry.resolve("credential", event.credential_name)
-          const { credentials, parameters } = event
-          const data = await credential.authenticate({ args: { credentials, parameters } })
+          const definition = registry.resolve("credential", event.credential_name)
+          const { credential, extra } = event
+          const data = await definition.authenticate({ args: { credential, extra } })
           channel.push("credential_authenticate_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
@@ -159,9 +159,9 @@ export async function createPlugin<Locales extends string[]>(
 
         try {
           const event = ToolInvokeMessage.parse(message)
-          const tool = registry.resolve("tool", event.tool_name)
+          const definition = registry.resolve("tool", event.tool_name)
           const { credentials, parameters } = event
-          const data = await tool.invoke({ args: { credentials, parameters } })
+          const data = await definition.invoke({ args: { credentials, parameters } })
           channel.push("invoke_tool_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
