@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-02-10
+
+### Changed
+- Updated dependencies:
+  - `@choiceopen/atomemo-plugin-schema` from ^0.2.1 to ^0.2.3
+  - `pino` from ^10.2.1 to ^10.3.1
+- Improved `CredentialAuthenticateMessage` schema:
+  - Added new `credential` field
+  - Renamed `parameters` field to `extra`
+- Enhanced error handling for credential authentication and tool invocation processes
+
 ## [0.2.0] - 2026-02-09
 
 ### Added
@@ -131,7 +142,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.8...v0.2.0
 [0.1.8]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.1.6...v0.1.7
