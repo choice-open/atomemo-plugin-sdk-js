@@ -146,12 +146,12 @@ export async function createPlugin<Locales extends string[]>(
 
           const { credential, extra } = event
           const data = await definition.authenticate({ args: { credential, extra } })
-          channel.push("credential_authenticate_response", { request_id, data })
+          channel.push("credential_auth_spec_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
-            channel.push("credential_authenticate_error", { request_id, ...error })
+            channel.push("credential_auth_spec_error", { request_id, ...error })
           } else {
-            channel.push("credential_authenticate_error", {
+            channel.push("credential_auth_spec_error", {
               request_id,
               message: "Unexpected Error",
             })
