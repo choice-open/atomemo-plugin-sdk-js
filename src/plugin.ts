@@ -134,7 +134,7 @@ export async function createPlugin<Locales extends string[]>(
         await Bun.write("definition.json", JSON.stringify(definition, null, 2))
       }
 
-      channel.on("credential_authenticate", async (message) => {
+      channel.on("credential_auth_spec", async (message) => {
         const request_id = message.request_id
 
         try {
