@@ -4,7 +4,7 @@ export default defineConfig({
   dts: true,
   entry: ["src/index.ts", "src/types.ts"],
   exports: {
-    devExports: "development",
+    devExports: false,
   },
   format: "esm",
   inlineOnly: ["es-toolkit"],

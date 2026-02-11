@@ -4,6 +4,7 @@ import {
   ToolDefinitionSchema,
 } from "@choiceopen/atomemo-plugin-schema/schemas"
 import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
+import { isNil } from "es-toolkit"
 import { z } from "zod"
 import { getEnv } from "./env"
 import { getSession } from "./oneauth"
@@ -139,6 +140,10 @@ export async function createPlugin<Locales extends string[]>(
         try {
           const event = CredentialAuthenticateMessage.parse(message)
           const definition = registry.resolve("credential", event.credential_name)
+          if (isNil(definition.authenticate)) {
+            throw new Error("Credential authenticate method is not implemented")
+          }
+
           const { credential, extra } = event
           const data = await definition.authenticate({ args: { credential, extra } })
           channel.push("credential_authenticate_response", { request_id, data })
