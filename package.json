@@ -1,6 +1,6 @@
 {
   "name": "@choiceopen/atomemo-plugin-sdk-js",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "JavaScript/TypeScript SDK for developing Choiceform Atomemo plugins",
   "homepage": "https://github.com/choice-open/atomemo-plugin-sdk-js#readme",
   "bugs": {
