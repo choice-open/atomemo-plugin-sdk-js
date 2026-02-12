@@ -31,7 +31,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@choiceopen/atomemo-plugin-schema": "^0.2.10",
+    "@choiceopen/atomemo-plugin-schema": "^0.2.11",
     "phoenix": "^1.8.3",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",

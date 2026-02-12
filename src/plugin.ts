@@ -13,7 +13,7 @@ import { createTransporter, type TransporterOptions } from "./transporter"
 
 const CredentialAuthenticateMessage = z.object({
   request_id: z.string(),
-  credential: z.record(z.string(), z.string()),
+  credential: z.record(z.string(), z.any()),
   credential_name: z.string(),
   extra: z.record(z.string(), z.any()),
 })
@@ -144,8 +144,12 @@ export async function createPlugin<Locales extends string[]>(
             throw new Error("Credential authenticate method is not implemented")
           }
 
+          const AuthenticateMethodWrapper = CredentialDefinitionSchema.shape.authenticate.unwrap()
+          const authenticate = AuthenticateMethodWrapper.implementAsync(definition.authenticate)
+
           const { credential, extra } = event
-          const data = await definition.authenticate({ args: { credential, extra } })
+          const data = await authenticate({ args: { credential, extra } })
+
           channel.push("credential_auth_spec_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
@@ -164,9 +168,13 @@ export async function createPlugin<Locales extends string[]>(
 
         try {
           const event = ToolInvokeMessage.parse(message)
-          const definition = registry.resolve("tool", event.tool_name)
           const { credentials, parameters } = event
-          const data = await definition.invoke({ args: { credentials, parameters } })
+          const definition = registry.resolve("tool", event.tool_name)
+
+          const InvokeMethodWrapper = ToolDefinitionSchema.shape.invoke
+          const invoke = InvokeMethodWrapper.implementAsync(definition.invoke)
+
+          const data = await invoke({ args: { credentials, parameters } })
           channel.push("invoke_tool_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
