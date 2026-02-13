@@ -22,7 +22,7 @@ const ToolInvokeMessage = z.object({
   request_id: z.string(),
   tool_name: z.string(),
   parameters: z.record(z.string(), z.any()),
-  credentials: z.record(z.string(), z.string()).optional(),
+  credentials: z.record(z.string(), z.any()).optional(),
 })
 
 type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
