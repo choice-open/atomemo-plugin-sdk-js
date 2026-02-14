@@ -2,13 +2,13 @@ import { z } from "zod"
 import { readConfig } from "./config"
 
 const SessionSchema = z.object({
-  id: z.string().optional(),
+  id: z.string(),
   expiresAt: z.string(),
   token: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  ipAddress: z.string().optional(),
-  userAgent: z.string().optional(),
+  ipAddress: z.string().nullish(),
+  userAgent: z.string().nullish(),
   userId: z.string(),
   impersonatedBy: z.string().nullish(),
   activeOrganizationId: z.string().nullish(),
@@ -16,21 +16,23 @@ const SessionSchema = z.object({
 })
 
 const UserSchema = z.object({
-  id: z.string().optional(),
+  id: z.string(),
   name: z.string(),
   email: z.string(),
   emailVerified: z.boolean().optional(),
-  image: z.string().optional(),
+  image: z.string().nullish(),
   createdAt: z.string(),
   updatedAt: z.string(),
-  role: z.string().optional(),
+  role: z.string(),
   banned: z.boolean().optional(),
   banReason: z.string().nullish(),
   banExpires: z.string().nullish(),
   lastLoginMethod: z.string().optional(),
   inherentOrganizationId: z.string(),
   inherentTeamId: z.string(),
-  metadata: z.unknown().optional(),
+  referralCode: z.string(),
+  referredBy: z.string().nullish(),
+  metadata: z.record(z.string(), z.any()),
   stripeCustomerId: z.string().nullish(),
 })
 
