@@ -7,9 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.14] - 2026-02-26
+
+### Changed
+
+- Removed organization constraints: plugin system no longer depends on organization ID
+- Updated dependencies:
+  - `phoenix` from ^1.8.3 to ^1.8.4
+  - `@biomejs/biome` from ^2.3.15 to ^2.4.4
+
 ## [0.2.13] - 2026-02-14
 
 ### Changed
+
 - Updated dev dependencies:
   - `@biomejs/biome` from ^2.3.14 to ^2.3.15
   - `dotenv` from ^17.2.4 to ^17.3.1
@@ -24,27 +34,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.12] - 2026-02-14
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.14 to ^0.2.15
 
 ## [0.2.11] - 2026-02-14
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.13 to ^0.2.14
 
 ## [0.2.10] - 2026-02-14
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.12 to ^0.2.13
 
 ## [0.2.9] - 2026-02-13
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.11 to ^0.2.12
 - Updated `ToolInvokeMessage` to accept any type for credentials (changed from `z.record(z.string(), z.string())` to `z.record(z.string(), z.any())`)
 
 ## [0.2.8] - 2026-02-12
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.10 to ^0.2.11
 - Updated `CredentialAuthenticateMessage` to accept any type for credentials
 - Added method wrappers for asynchronous implementation of credential authentication and tool invocation, improving handling of these operations
@@ -52,21 +67,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.7] - 2026-02-12
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.9 to ^0.2.10
 
 ## [0.2.6] - 2026-02-12
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.8 to ^0.2.9
 
 ## [0.2.5] - 2026-02-11
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.7 to ^0.2.8
 
 ## [0.2.4] - 2026-02-11
 
 ### Fixed
+
 - Updated event response names for credential authentication:
   - Renamed `credential_authenticate_response` to `credential_auth_spec_response`
   - Renamed `credential_authenticate_error` to `credential_auth_spec_error`
@@ -74,21 +93,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.3] - 2026-02-11
 
 ### Fixed
+
 - Renamed event listener for credential authentication from `credential_authenticate` to `credential_auth_spec`
 
 ## [0.2.2] - 2026-02-11
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` from ^0.2.3 to ^0.2.7
 - Updated `@types/bun` to ^1.3.9
 - Disabled development exports in tsdown configuration
 
 ### Fixed
+
 - Added nil check for the authenticate method in credential authentication process
 
 ## [0.2.1] - 2026-02-10
 
 ### Changed
+
 - Updated dependencies:
   - `@choiceopen/atomemo-plugin-schema` from ^0.2.1 to ^0.2.3
   - `pino` from ^10.2.1 to ^10.3.1
@@ -100,11 +123,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-02-09
 
 ### Added
+
 - Introduced `CredentialAuthenticateMessage` schema for improved credential authentication handling in the plugin
 - Added `credential_authenticate` event listener to support credential authentication functionality
 - Enhanced error handling for credential authentication responses
 
 ### Changed
+
 - Updated dependencies:
   - `@choiceopen/atomemo-plugin-schema` from ^0.1.8 to ^0.2.1
   - `type-fest` from ^5.4.3 to ^5.4.4
@@ -115,11 +140,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated build script to use `--clean` option to ensure fresh builds
 
 ### Fixed
+
 - Fixed newline character issue in `transporter.ts`
 
 ## [0.1.8] - 2026-02-08
 
 ### Fixed
+
 - Enhanced debug mode handling in plugin creation
 - Refined topic construction for transporter connection based on mode
 - Improved organization ID validation logic to only check in debug mode
@@ -128,6 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.7] - 2026-02-08
 
 ### Fixed
+
 - Improved user session handling in debug mode
 - Moved user session fetching and organization validation logic under the debug mode condition
 - Enhanced error handling for session fetching failures
@@ -137,36 +165,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.6] - 2026-02-06
 
 ### Fixed
+
 - Refined HUB_DEBUG_API_KEY validation logic to ensure it is a non-empty string in non-production environments
 - Enhanced error handling to provide clearer feedback based on the environment
 
 ## [0.1.5] - 2026-02-05
 
 ### Chore
+
 - Update dependencies
 
 ## [0.1.4] - 2026-02-05
 
 ### Changed
+
 - Made `HUB_DEBUG_API_KEY` optional in non-production environments
 - Error messages now display debug information only in non-production environments
 
 ### Added
+
 - Added logging for `NODE_ENV` in the plugin creation process
 
 ## [0.1.3] - 2026-02-02
 
 ### Added
+
 - Enhanced debug mode functionality by saving plugin definition to `definition.json` file for easier debugging and inspection
 
 ## [0.1.2] - 2026-02-02
 
 ### Changed
+
 - Updated `@choiceopen/atomemo-plugin-schema` dependency from ^0.1.3 to ^0.1.8
 
 ## [0.1.1] - 2026-02-02
 
 ### Changed
+
 - Renamed environment variables for consistency:
   - `HUB_SERVER_WS_URL` → `HUB_WS_URL`
   - `DEBUG_API_KEY` → `HUB_DEBUG_API_KEY`
@@ -180,6 +215,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-01-20
 
 ### Changed
+
 - Restructured project by flattening core directory structure
   - Moved `src/core/` modules to `src/` root directory
   - Updated all import paths accordingly
@@ -187,6 +223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `@choiceopen/atomemo-plugin-schema` dependency from ^0.1.2 to ^0.1.3
 
 ### Removed
+
 - Deprecated schemas and types modules
   - Removed `src/schemas/` directory (schemas now provided by `@choiceopen/atomemo-plugin-schema`)
   - Removed `src/types/` directory (types now exported from `@choiceopen/atomemo-plugin-schema`)
@@ -194,6 +231,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `./schemas` export from package.json
 
 ### Added
+
 - Comprehensive project documentation
   - Architecture documentation (`.spec/ARCHITECTURE.md`)
   - README files for all major directories
@@ -209,11 +247,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added organization ID validation
 
 ### Fixed
+
 - Fixed test file import paths (from `src/core/` to `src/`)
 - Removed tests for unimplemented `data_source` feature
 - Fixed build configurations
 
 ### Dependencies
+
 - Added `@choiceopen/atomemo-plugin-schema@^0.1.3`
 - Added `phoenix@^1.8.3`
 - Added `pino-pretty@^13.1.3`
@@ -221,7 +261,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.13...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.14...HEAD
+[0.2.14]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.13...v0.2.14
 [0.2.13]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.12...v0.2.13
 [0.2.12]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.11...v0.2.12
 [0.2.11]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.10...v0.2.11
