@@ -5,15 +5,21 @@ import { z } from "zod"
 
 const ConfigSchema = z.object({
   auth: z
-    .object({
-      endpoint: z.url().optional(),
-      access_token: z.string().optional(),
-    })
+    .record(
+      z.enum(["staging", "production"]),
+      z.object({
+        endpoint: z.url().optional(),
+        access_token: z.string().optional(),
+      }),
+    )
     .optional(),
   hub: z
-    .object({
-      endpoint: z.url().optional(),
-    })
+    .record(
+      z.enum(["staging", "production"]),
+      z.object({
+        endpoint: z.url().optional(),
+      }),
+    )
     .optional(),
 })
 

@@ -45,7 +45,7 @@ export type Session = z.infer<typeof SessionSchema>
 export type User = z.infer<typeof UserSchema>
 export type GetSessionResponse = z.infer<typeof GetSessionResponseSchema>
 
-const DEFAULT_ENDPOINT = "https://oneauth.choiceform.io"
+const DEFAULT_ENDPOINT = "https://oneauth.atomemo.ai"
 
 /**
  * Fetches the current session and user information from the OneAuth API.
@@ -53,22 +53,24 @@ const DEFAULT_ENDPOINT = "https://oneauth.choiceform.io"
  * @returns The session and user information.
  * @throws If the config file is missing, access token is missing, or the API request fails.
  */
-export async function getSession(): Promise<GetSessionResponse> {
+export async function getSession(
+  deployment: "staging" | "production",
+): Promise<GetSessionResponse> {
   const config = readConfig()
 
-  if (!config?.auth?.access_token) {
+  if (!config?.auth?.[deployment]?.access_token) {
     throw new Error(
       "Access token not found. Please ensure ~/.choiceform/atomemo.json contains auth.access_token",
     )
   }
 
-  const endpoint = config.auth.endpoint || DEFAULT_ENDPOINT
+  const endpoint = config.auth?.[deployment]?.endpoint || DEFAULT_ENDPOINT
   const url = new URL("/v1/auth/get-session", endpoint).toString()
 
   const response = await fetch(url, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${config.auth.access_token}`,
+      Authorization: `Bearer ${config.auth?.[deployment]?.access_token}`,
       "Content-Type": "application/json",
     },
   })

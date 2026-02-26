@@ -45,7 +45,8 @@ export async function createPlugin<Locales extends string[]>(
 
   if (isDebugMode) {
     try {
-      const session = await getSession()
+      const deployment = env.HUB_WS_URL.includes("atomemo.ai") ? "production" : "staging"
+      const session = await getSession(deployment)
       user = { name: session.user.name, email: session.user.email }
     } catch (error) {
       console.error("Error fetching user session:", error)
