@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-26
+
+### Fixed
+
+- In debug mode, user info is now fetched from the live session (via `getSession()`) instead of reading from `definition.json`
+- In release mode, `definition.json` parsing errors now display prettier Zod error messages
+
 ## [0.2.14] - 2026-02-26
 
 ### Changed
@@ -261,7 +268,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.14...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.14...v0.3.0
 [0.2.14]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.13...v0.2.14
 [0.2.13]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.12...v0.2.13
 [0.2.12]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.11...v0.2.12
