@@ -5,8 +5,9 @@ import {
 } from "@choiceopen/atomemo-plugin-schema/schemas"
 import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
 import { isNil } from "es-toolkit"
-import { z } from "zod"
+import { ZodError, z } from "zod"
 import { getEnv } from "./env"
+import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
 
@@ -40,10 +41,30 @@ export async function createPlugin<Locales extends string[]>(
   const env = getEnv()
   const isDebugMode = env.HUB_MODE === "debug"
 
-  const definition = z
-    .looseObject({ author: z.string(), email: z.string() })
-    .parse(await Bun.file("definition.json").json())
-  const user = { name: definition.author, email: definition.email }
+  let user: { name: string; email: string }
+
+  if (isDebugMode) {
+    try {
+      const session = await getSession()
+      user = { name: session.user.name, email: session.user.email }
+    } catch (error) {
+      console.error("Error fetching user session:", error)
+      process.exit(1)
+    }
+  } else {
+    try {
+      const raw = await Bun.file("definition.json").json()
+      const definition = z.looseObject({ author: z.string(), email: z.string() }).parse(raw)
+      user = { name: definition.author, email: definition.email }
+    } catch (error) {
+      if (error instanceof ZodError) {
+        console.error(z.prettifyError(error))
+      } else {
+        console.error("Error parsing definition.json:", error)
+      }
+      process.exit(1)
+    }
+  }
 
   // Merge user info into plugin options
   const { transporterOptions, version = process.env.npm_package_version, ...plugin } = options
