@@ -7,7 +7,6 @@ import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
 import { isNil } from "es-toolkit"
 import { z } from "zod"
 import { getEnv } from "./env"
-import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
 
@@ -38,46 +37,19 @@ type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
 export async function createPlugin<Locales extends string[]>(
   options: PluginDefinition<Locales, TransporterOptions>,
 ) {
-  // Validate organization ID before creating registry
   const env = getEnv()
   const isDebugMode = env.HUB_MODE === "debug"
 
-  if (isDebugMode && !env.HUB_ORGANIZATION_ID) {
-    console.error("DEBUG API Key is invalid. Please run `atomemo plugin refresh-key`")
-    process.exit(1)
-  }
-
-  let user: { name: string; email: string; inherentOrganizationId?: string }
-
-  if (isDebugMode) {
-    // Fetch user session and validate organization
-    try {
-      const sessionData = await getSession()
-      user = sessionData.user
-
-      if (user.inherentOrganizationId !== env.HUB_ORGANIZATION_ID) {
-        console.info(
-          "Atomemo does not currently support developing plugins for other organizations. Please wait for official support.",
-        )
-        process.exit(0)
-      }
-    } catch (error) {
-      console.error("Failed to fetch session:", error instanceof Error ? error.message : error)
-      process.exit(1)
-    }
-  } else {
-    const definition = z
-      .looseObject({ author: z.string(), email: z.string() })
-      .parse(await Bun.file("definition.json").json())
-    user = { name: definition.author, email: definition.email }
-  }
+  const definition = z
+    .looseObject({ author: z.string(), email: z.string() })
+    .parse(await Bun.file("definition.json").json())
+  const user = { name: definition.author, email: definition.email }
 
   // Merge user info into plugin options
   const { transporterOptions, version = process.env.npm_package_version, ...plugin } = options
   const pluginDefinition = Object.assign(plugin, {
     author: user.name,
     email: user.email,
-    organization_id: env.HUB_ORGANIZATION_ID,
     version,
   })
 
@@ -125,7 +97,7 @@ export async function createPlugin<Locales extends string[]>(
     run: async () => {
       const topic = isDebugMode
         ? `debug_plugin:${registry.plugin.name}`
-        : `release_plugin:${pluginDefinition.organization_id}__${registry.plugin.name}__${env.HUB_MODE}__${pluginDefinition.version}`
+        : `release_plugin:${registry.plugin.name}__${pluginDefinition.version}`
       const { channel, dispose } = await transporter.connect(topic)
 
       if (isDebugMode) {

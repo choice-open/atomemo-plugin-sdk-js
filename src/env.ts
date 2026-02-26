@@ -11,8 +11,6 @@ declare module "bun" {
     readonly DEBUG: boolean
     /** The API key for the Hub Server. */
     readonly HUB_DEBUG_API_KEY: string | undefined
-    /** The organization ID for the plugin. */
-    readonly HUB_ORGANIZATION_ID: string | undefined
   }
 }
 
@@ -33,10 +31,6 @@ const EnvSchema = z.object({
       return Bun.env.NODE_ENV === "production" || (isString(value) && value.length > 0)
     })
     .meta({ description: `The API key for the Hub Server` }),
-  HUB_ORGANIZATION_ID: z
-    .string()
-    .optional()
-    .meta({ description: `The organization ID for the plugin.` }),
   DEBUG: z
     .string()
     .optional()
