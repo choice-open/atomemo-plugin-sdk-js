@@ -119,7 +119,7 @@ export async function createPlugin<Locales extends string[]>(
     run: async () => {
       const topic = isDebugMode
         ? `debug_plugin:${registry.plugin.name}`
-        : `release_plugin:${registry.plugin.name}__${pluginDefinition.version}`
+        : `release_plugin:${registry.plugin.name}__${env.HUB_MODE}__${pluginDefinition.version}`
       const { channel, dispose } = await transporter.connect(topic)
 
       if (isDebugMode) {
