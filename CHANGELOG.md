@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-02-27
+
+### Fixed
+
+- Release channel topic now includes `HUB_MODE` in the topic string for proper channel routing
+
 ## [0.3.1] - 2026-02-26
 
 ### Changed
@@ -277,7 +283,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.14...v0.3.0
 [0.2.14]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.13...v0.2.14
