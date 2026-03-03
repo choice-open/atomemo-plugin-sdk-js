@@ -14,7 +14,7 @@ declare module "bun" {
   }
 }
 
-const EnvSchema = z.object({
+export const EnvSchema = z.object({
   HUB_MODE: z.enum(["debug", "release"]).default("debug").meta({
     description: `The Hub Server runtime mode. This will be "debug" by default.`,
   }),
@@ -60,4 +60,8 @@ export function getEnv() {
   }
 
   return env
+}
+
+export function __resetEnvForTesting() {
+  env = undefined
 }

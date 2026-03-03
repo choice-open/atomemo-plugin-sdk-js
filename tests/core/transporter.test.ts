@@ -112,8 +112,8 @@ describe("transporter", () => {
   beforeEach(() => {
     // Reset environment
     Object.assign(process.env, originalEnv)
-    ;(process.env as Record<string, string>).HUB_SERVER_WS_URL = "ws://localhost:4000/socket"
-    ;(process.env as Record<string, string>).DEBUG_API_KEY = "test-api-key"
+    ;(process.env as Record<string, string>).HUB_WS_URL = "ws://localhost:4000/socket"
+    ;(process.env as Record<string, string>).HUB_DEBUG_API_KEY = "test-api-key"
     ;(process.env as Record<string, string>).DEBUG = "false"
 
     // Reset receive callbacks
@@ -143,19 +143,23 @@ describe("transporter", () => {
     test("should create socket with correct URL and options", () => {
       createTransporter()
       expect(MockSocket).toHaveBeenCalledWith(
-        "ws://localhost:4000/socket",
+        "ws://localhost:4000/socket/debug_socket",
         expect.objectContaining({
           debug: false,
           heartbeatIntervalMs: 30 * 1000,
           logger: expect.any(Function),
+          params: expect.objectContaining({
+            api_key: "test-api-key",
+          }),
         }),
       )
     })
 
     test("should use custom heartbeatIntervalMs when provided", () => {
       createTransporter({ heartbeatIntervalMs: 60 * 1000 })
-      expect(MockSocket).toHaveBeenCalledWith(
-        "ws://localhost:4000/socket",
+      expect(MockSocket).toHaveBeenNthCalledWith(
+        2,
+        "ws://localhost:4000/socket/debug_socket",
         expect.objectContaining({
           heartbeatIntervalMs: 60 * 1000,
         }),
