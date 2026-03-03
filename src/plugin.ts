@@ -10,6 +10,7 @@ import { getEnv } from "./env"
 import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
+import { serializeError } from "./utils/serialize-error"
 
 const CredentialAuthenticateMessage = z.object({
   request_id: z.string(),
@@ -147,11 +148,11 @@ export async function createPlugin<Locales extends string[]>(
           channel.push("credential_auth_spec_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
-            channel.push("credential_auth_spec_error", { request_id, ...error })
+            channel.push("credential_auth_spec_error", { request_id, error: serializeError(error) })
           } else {
             channel.push("credential_auth_spec_error", {
               request_id,
-              message: "Unexpected Error",
+              error: serializeError(new Error("Unexpected Error")),
             })
           }
         }
@@ -172,9 +173,12 @@ export async function createPlugin<Locales extends string[]>(
           channel.push("invoke_tool_response", { request_id, data })
         } catch (error) {
           if (error instanceof Error) {
-            channel.push("invoke_tool_error", { request_id, ...error })
+            channel.push("invoke_tool_error", { request_id, error: serializeError(error) })
           } else {
-            channel.push("invoke_tool_error", { request_id, message: "Unexpected Error" })
+            channel.push("invoke_tool_error", {
+              request_id,
+              error: serializeError(new Error("Unexpected Error")),
+            })
           }
         }
       })
