@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-03-03
+
+### Added
+
+- Added `serializeError` utility to safely convert `Error` instances (including causes and custom properties) into JSON-serializable payloads
+- Plugin error handling for credential authentication and tool invocation now uses `serializeError` when reporting failures over the transporter channel
+
+### Changed
+
+- Updated `EnvSchema` to require `HUB_WS_URL` to be a valid `ws://` or `wss://` URL and refined `DEBUG` behavior based on `NODE_ENV`
+- Added `__resetEnvForTesting` helper to allow resetting cached environment values in tests
+- Updated dev dependencies:
+  - `@biomejs/biome` from ^2.4.4 to ^2.4.5
+  - `@types/bun` from ^1.3.9 to ^1.3.10
+  - `es-toolkit` from ^1.44.0 to ^1.45.0
+
 ## [0.3.2] - 2026-02-27
 
 ### Fixed
@@ -283,7 +299,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.2.14...v0.3.0
