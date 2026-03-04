@@ -5,20 +5,20 @@
     "": {
       "name": "@choiceopen/atomemo-plugin-sdk-js",
       "dependencies": {
-        "@choiceopen/atomemo-plugin-schema": "^0.2.15",
+        "@choiceopen/atomemo-plugin-schema": "^0.2.16",
         "phoenix": "^1.8.4",
         "pino": "^10.3.1",
         "pino-pretty": "^13.1.3",
         "type-fest": "^5.4.4",
       },
       "devDependencies": {
-        "@biomejs/biome": "^2.4.4",
-        "@types/bun": "^1.3.9",
+        "@biomejs/biome": "^2.4.5",
+        "@types/bun": "^1.3.10",
         "@types/phoenix": "^1.6.7",
         "bumpp": "^10.4.1",
         "chalk": "^5.6.2",
         "dotenv": "^17.3.1",
-        "es-toolkit": "^1.44.0",
+        "es-toolkit": "^1.45.0",
         "tsdown": "^0.20.3",
         "typescript": "^5.9.3",
         "zod": "^4.3.6",
@@ -59,7 +59,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.4.5", "", { "os": "win32", "cpu": "x64" }, "sha512-Pmhv9zT95YzECfjEHNl3mN9Vhusw9VA5KHY0ZvlGsxsjwS5cb7vpRnHzJIv0vG7jB0JI7xEaMH9ddfZm/RozBw=="],
 
-    "@choiceopen/atomemo-plugin-schema": ["@choiceopen/atomemo-plugin-schema@0.2.15", "", { "dependencies": { "type-fest": "^5.4.4" }, "peerDependencies": { "zod": "^4" } }, "sha512-z2fRcTlPHuao8YLR87r1IyqnNNbH0GENDFE3n0jpB2lkpnXP5+orhQVIZPjDDt78l/eC5xEIorCihFRFYn2p1g=="],
+    "@choiceopen/atomemo-plugin-schema": ["@choiceopen/atomemo-plugin-schema@0.2.16", "", { "dependencies": { "type-fest": "^5.4.4" }, "peerDependencies": { "zod": "^4" } }, "sha512-4LwTsN+0wM6dug4izptB5YqJuq0Gsh/g0bzunK2QM3ioXrohOaQMAyWBs5+QZ2sPEeNjVP97hrqPhrfiMVBvhw=="],
 
     "@emnapi/core": ["@emnapi/core@1.8.1", "", { "dependencies": { "@emnapi/wasi-threads": "1.1.0", "tslib": "^2.4.0" } }, "sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg=="],
 
