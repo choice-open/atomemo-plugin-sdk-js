@@ -6,10 +6,13 @@ import {
 import type { PluginDefinition } from "@choiceopen/atomemo-plugin-schema/types"
 import { isNil } from "es-toolkit"
 import { ZodError, z } from "zod"
+import { createPluginContext } from "./context"
 import { getEnv } from "./env"
+import { createHubCaller } from "./hub"
 import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
+import { parseFileRefs } from "./utils/parse-file-refs"
 import { serializeError } from "./utils/serialize-error"
 
 const CredentialAuthenticateMessage = z.object({
@@ -123,70 +126,100 @@ export async function createPlugin<Locales extends string[]>(
         ? `debug_plugin:${registry.plugin.name}`
         : `release_plugin:${registry.plugin.name}__${env.HUB_MODE}__${pluginDefinition.version}`
       const { channel, dispose } = await transporter.connect(topic)
-
-      if (isDebugMode) {
-        const definition = registry.serialize().plugin
-        channel.push("register_plugin", definition)
-        await Bun.write("definition.json", JSON.stringify(definition, null, 2))
+      const hubCaller = createHubCaller(channel)
+      const pluginContext = createPluginContext(hubCaller)
+      let cleanedUp = false
+      const cleanup = () => {
+        if (cleanedUp) return
+        cleanedUp = true
+        hubCaller.dispose()
+        dispose()
       }
 
-      channel.on("credential_auth_spec", async (message) => {
-        const request_id = message.request_id
-
-        try {
-          const event = CredentialAuthenticateMessage.parse(message)
-          const definition = registry.resolve("credential", event.credential_name)
-          if (isNil(definition.authenticate)) {
-            throw new Error("Credential authenticate method is not implemented")
-          }
-
-          const AuthenticateMethodWrapper = CredentialDefinitionSchema.shape.authenticate.unwrap()
-          const authenticate = AuthenticateMethodWrapper.implementAsync(definition.authenticate)
-
-          const { credential, extra } = event
-          const data = await authenticate({ args: { credential, extra } })
-
-          channel.push("credential_auth_spec_response", { request_id, data })
-        } catch (error) {
-          if (error instanceof Error) {
-            channel.push("credential_auth_spec_error", { request_id, error: serializeError(error) })
-          } else {
-            channel.push("credential_auth_spec_error", {
-              request_id,
-              error: serializeError(new Error("Unexpected Error")),
-            })
-          }
-        }
-      })
-
-      channel.on("invoke_tool", async (message) => {
-        const request_id = message.request_id
-
-        try {
-          const event = ToolInvokeMessage.parse(message)
-          const { credentials, parameters } = event
-          const definition = registry.resolve("tool", event.tool_name)
-
-          const InvokeMethodWrapper = ToolDefinitionSchema.shape.invoke
-          const invoke = InvokeMethodWrapper.implementAsync(definition.invoke)
-
-          const data = await invoke({ args: { credentials, parameters } })
-          channel.push("invoke_tool_response", { request_id, data })
-        } catch (error) {
-          if (error instanceof Error) {
-            channel.push("invoke_tool_error", { request_id, error: serializeError(error) })
-          } else {
-            channel.push("invoke_tool_error", {
-              request_id,
-              error: serializeError(new Error("Unexpected Error")),
-            })
-          }
-        }
-      })
-
       void ["SIGINT", "SIGTERM"].forEach((signal) => {
-        void process.on(signal, dispose)
+        void process.on(signal, cleanup)
       })
+
+      try {
+        if (isDebugMode) {
+          const definition = registry.serialize().plugin
+          await new Promise<void>((resolve, reject) => {
+            channel
+              .push("register_plugin", definition)
+              .receive("ok", () => {
+                resolve()
+              })
+              .receive("error", (response) => {
+                reject(new Error(`Failed to register plugin: ${JSON.stringify(response)}`))
+              })
+              .receive("timeout", () => {
+                reject(new Error("Timed out while registering plugin"))
+              })
+          })
+          await Bun.write("definition.json", JSON.stringify(definition, null, 2))
+        }
+
+        channel.on("credential_auth_spec", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = CredentialAuthenticateMessage.parse(message)
+            const definition = registry.resolve("credential", event.credential_name)
+            if (isNil(definition.authenticate)) {
+              throw new Error("Credential authenticate method is not implemented")
+            }
+
+            const AuthenticateMethodWrapper = CredentialDefinitionSchema.shape.authenticate.unwrap()
+            const authenticate = AuthenticateMethodWrapper.implementAsync(definition.authenticate)
+
+            const { credential, extra } = event
+            const data = await authenticate({ args: { credential, extra }, context: pluginContext })
+
+            channel.push("credential_auth_spec_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("credential_auth_spec_error", {
+                request_id,
+                error: serializeError(error),
+              })
+            } else {
+              channel.push("credential_auth_spec_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+
+        channel.on("invoke_tool", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = ToolInvokeMessage.parse(message)
+            const { credentials } = event
+            const parameters = parseFileRefs(event.parameters) as Record<string, unknown>
+            const definition = registry.resolve("tool", event.tool_name)
+
+            const InvokeMethodWrapper = ToolDefinitionSchema.shape.invoke
+            const invoke = InvokeMethodWrapper.implementAsync(definition.invoke)
+
+            const data = await invoke({ args: { credentials, parameters }, context: pluginContext })
+            channel.push("invoke_tool_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("invoke_tool_error", { request_id, error: serializeError(error) })
+            } else {
+              channel.push("invoke_tool_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+      } catch (error) {
+        cleanup()
+        throw error
+      }
     },
   }
 }

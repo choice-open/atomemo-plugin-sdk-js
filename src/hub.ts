@@ -10,7 +10,7 @@ export interface HubCaller {
 }
 
 export class HubCallError extends Error {
-  code: string
+  readonly code: string
 
   constructor(code: string, message: string) {
     super(message)
@@ -35,6 +35,7 @@ interface PendingCall {
 export function createHubCaller(channel: Channel, options?: HubCallerOptions): HubCaller {
   const timeoutMs = options?.timeoutMs ?? 30_000
   const pending = new Map<string, PendingCall>()
+  let disposed = false
 
   function settlePending(requestId: string) {
     const entry = pending.get(requestId)
@@ -62,6 +63,8 @@ export function createHubCaller(channel: Channel, options?: HubCallerOptions): H
 
   return {
     call<T = unknown>(event: string, data: Record<string, unknown>): Promise<T> {
+      if (disposed) return Promise.reject(new Error("Hub caller is disposed"))
+
       return new Promise<T>((resolve, reject) => {
         const requestId = crypto.randomUUID()
 
@@ -76,14 +79,28 @@ export function createHubCaller(channel: Channel, options?: HubCallerOptions): H
           timer,
         })
 
-        channel.push(`hub_call:${event}`, {
-          request_id: requestId,
-          data,
-        })
+        channel
+          .push(`hub_call:${event}`, {
+            request_id: requestId,
+            data,
+          })
+          .receive("error", (resp: unknown) => {
+            const entry = settlePending(requestId)
+            if (entry)
+              entry.reject(
+                new HubCallError("PUSH_FAILED", `Push rejected: ${JSON.stringify(resp)}`),
+              )
+          })
+          .receive("timeout", () => {
+            const entry = settlePending(requestId)
+            if (entry) entry.reject(new HubCallTimeoutError(event, timeoutMs))
+          })
       })
     },
 
     dispose() {
+      disposed = true
+
       for (const [, entry] of pending) {
         clearTimeout(entry.timer)
         entry.reject(new Error("Hub caller disposed"))

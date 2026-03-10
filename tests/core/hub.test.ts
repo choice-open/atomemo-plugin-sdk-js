@@ -5,15 +5,40 @@ import { createHubCaller, HubCallError, HubCallTimeoutError } from "../../src/hu
 interface Binding {
   event: string
   ref: number
-  callback: Function
+  callback: (...args: unknown[]) => void
+}
+
+interface MockPush {
+  receive(status: string, callback: (...args: unknown[]) => void): MockPush
+  _triggerReceive(status: string, response?: unknown): void
+}
+
+function createMockPush(): MockPush {
+  const receiveCallbacks = new Map<string, ((...args: unknown[]) => void)[]>()
+
+  const pushObj: MockPush = {
+    receive(status: string, callback: (...args: unknown[]) => void): MockPush {
+      const list = receiveCallbacks.get(status) ?? []
+      list.push(callback)
+      receiveCallbacks.set(status, list)
+      return pushObj
+    },
+    _triggerReceive(status: string, response?: unknown) {
+      const cbs = receiveCallbacks.get(status) ?? []
+      for (const cb of cbs) cb(response)
+    },
+  }
+
+  return pushObj
 }
 
 function createMockChannel() {
   const bindings: Binding[] = []
   let bindingRef = 0
+  let lastPush: MockPush | undefined
 
   return {
-    on(event: string, callback: Function): number {
+    on(event: string, callback: (...args: unknown[]) => void): number {
       const ref = bindingRef++
       bindings.push({ event, ref, callback })
       return ref
@@ -23,7 +48,8 @@ function createMockChannel() {
       if (index !== -1) bindings.splice(index, 1)
     },
     push: mock((_event: string, _payload: unknown) => {
-      return { receive: mock(() => ({})) }
+      lastPush = createMockPush()
+      return lastPush
     }),
     // Test helper: simulate Hub sending an event
     _emit(event: string, payload: unknown) {
@@ -33,6 +59,9 @@ function createMockChannel() {
     },
     _bindingCount(event: string): number {
       return bindings.filter((b) => b.event === event).length
+    },
+    _lastPush(): MockPush | undefined {
+      return lastPush
     },
   }
 }
@@ -168,6 +197,49 @@ describe("hub caller", () => {
       expect(await promise1).toEqual({ result: "a" })
       expect(await promise2).toEqual({ result: "b" })
     })
+
+    test("rejects with HubCallError when push receives error", async () => {
+      const caller = createHubCaller(mockChannel as unknown as Channel)
+      const promise = caller.call("bad_event", {})
+
+      const pushObj = mockChannel._lastPush()
+      expect(pushObj).toBeDefined()
+      if (!pushObj) {
+        throw new Error("Expected mock push to exist")
+      }
+      pushObj._triggerReceive("error", { reason: "invalid_event" })
+
+      try {
+        await promise
+        throw new Error("Expected promise to reject")
+      } catch (err) {
+        expect(err).toBeInstanceOf(HubCallError)
+        const hubErr = err as HubCallError
+        expect(hubErr.code).toBe("PUSH_FAILED")
+        expect(hubErr.message).toContain("invalid_event")
+      }
+    })
+
+    test("rejects with HubCallTimeoutError when push receives timeout", async () => {
+      const caller = createHubCaller(mockChannel as unknown as Channel, { timeoutMs: 5000 })
+      const promise = caller.call("slow_push", {})
+
+      const pushObj = mockChannel._lastPush()
+      expect(pushObj).toBeDefined()
+      if (!pushObj) {
+        throw new Error("Expected mock push to exist")
+      }
+      pushObj._triggerReceive("timeout")
+
+      try {
+        await promise
+        throw new Error("Expected promise to reject")
+      } catch (err) {
+        expect(err).toBeInstanceOf(HubCallTimeoutError)
+        expect((err as HubCallTimeoutError).message).toContain("slow_push")
+        expect((err as HubCallTimeoutError).message).toContain("5000ms")
+      }
+    })
   })
 
   describe("dispose", () => {
@@ -204,6 +276,21 @@ describe("hub caller", () => {
     test("is safe to call dispose with no pending calls", () => {
       const caller = createHubCaller(mockChannel as unknown as Channel)
       expect(() => caller.dispose()).not.toThrow()
+    })
+
+    test("call() after dispose() rejects immediately", async () => {
+      const caller = createHubCaller(mockChannel as unknown as Channel)
+      caller.dispose()
+
+      try {
+        await caller.call("any_event", {})
+        throw new Error("Expected promise to reject")
+      } catch (err) {
+        expect((err as Error).message).toBe("Hub caller is disposed")
+      }
+
+      // Should not have pushed anything after dispose
+      expect(mockChannel.push).not.toHaveBeenCalled()
     })
   })
 
