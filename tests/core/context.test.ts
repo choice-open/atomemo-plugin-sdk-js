@@ -4,10 +4,18 @@ import { createPluginContext } from "../../src/context"
 import type { HubCaller } from "../../src/hub"
 
 function createMockHubCaller() {
-  const call: HubCaller["call"] = async () =>
-    ({
+  const call: HubCaller["call"] = async (event) => {
+    if (event === "get_upload_url") {
+      return {
+        presigned_url: "https://example.com/upload.bin",
+        res_key: "uploads/file.bin",
+      } as never
+    }
+
+    return {
       url: "https://example.com/file.bin",
-    }) as never
+    } as never
+  }
 
   return {
     call: mock(call) as unknown as HubCaller["call"],
@@ -158,11 +166,82 @@ describe("createPluginContext", () => {
     })
   })
 
-  test("upload rejects with not implemented error", async () => {
+  test("upload returns oss file_ref unchanged", async () => {
     const context = createPluginContext(hubCaller)
+    const fileRef: FileRef = {
+      __type__: "file_ref",
+      source: "oss",
+      filename: "draft.txt",
+      res_key: "uploads/draft.txt",
+    }
 
-    await expect(context.files.upload({ filename: "draft.txt" })).rejects.toThrow(
-      "upload is not implemented yet",
-    )
+    expect(await context.files.upload(fileRef)).toEqual(fileRef)
+    expect(hubCaller.call).not.toHaveBeenCalled()
+  })
+
+  test("upload requests presigned url with extension and prefixKey, then uploads bytes", async () => {
+    const context = createPluginContext(hubCaller)
+    const fileRef: FileRef = {
+      __type__: "file_ref",
+      source: "mem",
+      filename: "draft.txt",
+      extension: ".txt",
+      content: Buffer.from("hello").toString("base64"),
+    }
+    const fetchMock = mock(async (input: RequestInfo | URL, init?: RequestInit) => {
+      expect(input).toBe("https://example.com/upload.bin")
+      expect(init?.method).toBe("PUT")
+      expect(init?.headers).toEqual({ "content-type": "text/plain" })
+      expect(Buffer.from(init?.body as Buffer).toString()).toBe("hello")
+
+      return new Response(null, { status: 200 })
+    })
+
+    globalThis.fetch = fetchMock as unknown as typeof fetch
+
+    expect(await context.files.upload(fileRef, { prefixKey: "tmp/" })).toEqual({
+      ...fileRef,
+      source: "oss",
+      content: undefined,
+      size: 5,
+      res_key: "uploads/file.bin",
+      remote_url: undefined,
+    })
+    expect(hubCaller.call).toHaveBeenCalledWith("get_upload_url", {
+      extension: ".txt",
+      prefixKey: "tmp/",
+    })
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  test("upload works when destructured from context.files", async () => {
+    const context = createPluginContext(hubCaller)
+    const { upload } = context.files
+    const fileRef: FileRef = {
+      __type__: "file_ref",
+      source: "mem",
+      extension: ".bin",
+      content: Buffer.from("abc").toString("base64"),
+    }
+    const fetchMock = mock(async (_input: RequestInfo | URL, init?: RequestInit) => {
+      expect(init?.method).toBe("PUT")
+      expect(init?.headers).toEqual({ "content-type": "application/octet-stream" })
+      return new Response(null, { status: 200 })
+    })
+
+    globalThis.fetch = fetchMock as unknown as typeof fetch
+
+    expect(await upload(fileRef, { prefixKey: "bin/" })).toEqual({
+      ...fileRef,
+      source: "oss",
+      content: undefined,
+      size: 3,
+      res_key: "uploads/file.bin",
+      remote_url: undefined,
+    })
+    expect(hubCaller.call).toHaveBeenCalledWith("get_upload_url", {
+      extension: ".bin",
+      prefixKey: "bin/",
+    })
   })
 })
