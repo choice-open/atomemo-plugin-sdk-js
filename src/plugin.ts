@@ -16,11 +16,12 @@ const CredentialAuthenticateMessage = z.object({
   request_id: z.string(),
   credential: z.record(z.string(), z.any()),
   credential_name: z.string(),
-  extra: z.record(z.string(), z.any()),
+  extra: z.record(z.string(), z.any()).optional(),
 })
 
 const ToolInvokeMessage = z.object({
   request_id: z.string(),
+  plugin_identifier: z.string().optional(),
   tool_name: z.string(),
   parameters: z.record(z.string(), z.any()),
   credentials: z.record(z.string(), z.any()).optional(),
