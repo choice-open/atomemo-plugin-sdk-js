@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+### Changed
+
+### Fixed
+
+## [0.4.0] - 2026-03-11
+
+### Added
+
+- Added `PluginContext.files` helpers for file workflows:
+  - `parseFileRef()` to validate `file_ref` payloads
+  - `attachRemoteUrl()` to resolve OSS download URLs from the Hub
+  - `download()` to fetch OSS-backed files into in-memory `FileRef` objects
+  - `upload()` to upload in-memory files through Hub-issued presigned URLs, with optional `prefixKey`
+- Added `createHubCaller()` RPC support for `hub_call:{event}` requests, including response/error routing, timeout handling, and disposal cleanup
+- Added recursive `parseFileRefs()` handling so nested `file_ref` values in tool parameters are validated before tool invocation
+- Added test coverage for Hub RPC calls, file context helpers, and recursive `file_ref` parsing
+
+### Changed
+
+- Aligned the SDK runtime with the websocket Hub protocol:
+  - Tool and credential handlers now receive `context`
+  - Tool invocation payloads now accept optional `plugin_identifier`
+  - Credential authentication payloads now allow optional `extra`
+  - Debug-mode plugin registration now waits for Hub acknowledgement before writing `definition.json`
+- Updated source and test documentation to cover Hub RPC, file context APIs, recursive `file_ref` parsing, and expanded test coverage
+
+## [0.3.5] - 2026-03-11
+
+### Changed
+
+- Updated dependencies:
+  - `@choiceopen/atomemo-plugin-schema` from `link:@choiceopen/atomemo-plugin-schema` to `^0.4.0`
+  - `phoenix` from `^1.8.4` to `^1.8.5`
+- Updated dev dependencies:
+  - `@biomejs/biome` from `^2.4.5` to `^2.4.6`
+  - `es-toolkit` from `^1.45.0` to `^1.45.1`
+
 ## [0.3.4] - 2026-03-04
 
 ### Changed
@@ -305,7 +344,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.5...v0.4.0
+[0.3.5]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.0...v0.3.1
