@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- OAuth2 credential flow support: channel handlers for `oauth2_build_authorize_url`, `oauth2_get_token`, and `oauth2_refresh_token` with request/response and error routing; credential definitions may implement `oauth2_build_authorize_url`, `oauth2_get_token`, and `oauth2_refresh_token` methods
+
 ### Changed
+
+- Updated `@choiceopen/atomemo-plugin-schema` from ^0.4.1 to ^0.5.0
 
 ### Fixed
 
