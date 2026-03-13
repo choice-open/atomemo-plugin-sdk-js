@@ -74,10 +74,10 @@ export function createPluginContext(hubCaller: HubCaller): PluginContext {
     return {
       ...fileRef,
       source: "oss",
-      content: undefined,
+      content: null,
       size: Buffer.from(content, "base64").byteLength,
       res_key,
-      remote_url: undefined,
+      remote_url: null,
     }
   }
 

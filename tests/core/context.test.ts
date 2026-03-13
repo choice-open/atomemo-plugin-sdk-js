@@ -42,7 +42,12 @@ describe("createPluginContext", () => {
       source: "oss",
       filename: "report.pdf",
       res_key: "files/report.pdf",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      remote_url: null,
+      content: null,
+    } as FileRef
 
     expect(context.files.parseFileRef(input)).toEqual(input)
   })
@@ -60,11 +65,17 @@ describe("createPluginContext", () => {
 
   test("attachRemoteUrl calls hubCaller.call with get_file_url and res_key", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "oss",
+      filename: null,
       res_key: "uploads/photo.jpg",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      remote_url: null,
+      content: null,
+    } satisfies FileRef
 
     await context.files.attachRemoteUrl(fileRef)
 
@@ -75,12 +86,17 @@ describe("createPluginContext", () => {
 
   test("attachRemoteUrl returns file_ref merged with remote_url", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "oss",
       filename: "photo.jpg",
       res_key: "uploads/photo.jpg",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      remote_url: null,
+      content: null,
+    } satisfies FileRef
 
     expect(await context.files.attachRemoteUrl(fileRef)).toEqual({
       ...fileRef,
@@ -90,12 +106,17 @@ describe("createPluginContext", () => {
 
   test("attachRemoteUrl reuses existing remote_url without calling hub", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "oss",
       filename: "photo.jpg",
       remote_url: "https://cdn.example.com/photo.jpg",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      res_key: null,
+      content: null,
+    } satisfies FileRef
 
     expect(await context.files.attachRemoteUrl(fileRef)).toEqual(fileRef)
     expect(hubCaller.call).not.toHaveBeenCalled()
@@ -103,12 +124,17 @@ describe("createPluginContext", () => {
 
   test("download returns mem file_ref unchanged", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "mem",
       filename: "hello.txt",
       content: Buffer.from("hello world").toString("base64"),
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      res_key: null,
+      remote_url: null,
+    } satisfies FileRef
 
     expect(await context.files.download(fileRef)).toBe(fileRef)
     expect(hubCaller.call).not.toHaveBeenCalled()
@@ -116,12 +142,17 @@ describe("createPluginContext", () => {
 
   test("download for oss attaches remote_url, fetches bytes, and returns base64 content", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "oss",
       filename: "hello.txt",
       res_key: "uploads/hello.txt",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      remote_url: null,
+      content: null,
+    } satisfies FileRef
     const fetchMock = mock(async (input: RequestInfo | URL) => {
       expect(input).toBe("https://example.com/file.bin")
       return new Response(Uint8Array.from([104, 101, 108, 108, 111]))
@@ -143,12 +174,17 @@ describe("createPluginContext", () => {
   test("download works when destructured from context.files", async () => {
     const context = createPluginContext(hubCaller)
     const { download } = context.files
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "oss",
       filename: "hello.txt",
       res_key: "uploads/hello.txt",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      remote_url: null,
+      content: null,
+    } satisfies FileRef
     const fetchMock = mock(async (input: RequestInfo | URL) => {
       expect(input).toBe("https://example.com/file.bin")
       return new Response(Uint8Array.from([104, 101, 108, 108, 111]))
@@ -168,26 +204,35 @@ describe("createPluginContext", () => {
 
   test("upload returns oss file_ref unchanged", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "oss",
       filename: "draft.txt",
       res_key: "uploads/draft.txt",
-    }
+      extension: null,
+      mime_type: null,
+      size: null,
+      remote_url: null,
+      content: null,
+    } satisfies FileRef
 
-    expect(await context.files.upload(fileRef)).toEqual(fileRef)
+    expect(await context.files.upload(fileRef, { prefixKey: "uploads/" })).toEqual(fileRef)
     expect(hubCaller.call).not.toHaveBeenCalled()
   })
 
   test("upload requests presigned url with extension and prefixKey, then uploads bytes", async () => {
     const context = createPluginContext(hubCaller)
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "mem",
       filename: "draft.txt",
       extension: ".txt",
       content: Buffer.from("hello").toString("base64"),
-    }
+      mime_type: null,
+      size: null,
+      res_key: null,
+      remote_url: null,
+    } satisfies FileRef
     const fetchMock = mock(async (input: RequestInfo | URL, init?: RequestInit) => {
       expect(input).toBe("https://example.com/upload.bin")
       expect(init?.method).toBe("PUT")
@@ -202,10 +247,10 @@ describe("createPluginContext", () => {
     expect(await context.files.upload(fileRef, { prefixKey: "tmp/" })).toEqual({
       ...fileRef,
       source: "oss",
-      content: undefined,
+      content: null,
       size: 5,
       res_key: "uploads/file.bin",
-      remote_url: undefined,
+      remote_url: null,
     })
     expect(hubCaller.call).toHaveBeenCalledWith("get_upload_url", {
       extension: ".txt",
@@ -217,12 +262,17 @@ describe("createPluginContext", () => {
   test("upload works when destructured from context.files", async () => {
     const context = createPluginContext(hubCaller)
     const { upload } = context.files
-    const fileRef: FileRef = {
+    const fileRef = {
       __type__: "file_ref",
       source: "mem",
       extension: ".bin",
       content: Buffer.from("abc").toString("base64"),
-    }
+      filename: null,
+      mime_type: null,
+      size: null,
+      res_key: null,
+      remote_url: null,
+    } satisfies FileRef
     const fetchMock = mock(async (_input: RequestInfo | URL, init?: RequestInit) => {
       expect(init?.method).toBe("PUT")
       expect(init?.headers).toEqual({ "content-type": "application/octet-stream" })
@@ -234,10 +284,10 @@ describe("createPluginContext", () => {
     expect(await upload(fileRef, { prefixKey: "bin/" })).toEqual({
       ...fileRef,
       source: "oss",
-      content: undefined,
+      content: null,
       size: 3,
       res_key: "uploads/file.bin",
-      remote_url: undefined,
+      remote_url: null,
     })
     expect(hubCaller.call).toHaveBeenCalledWith("get_upload_url", {
       extension: ".bin",

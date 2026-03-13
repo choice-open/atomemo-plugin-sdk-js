@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated `@choiceopen/atomemo-plugin-schema` from ^0.5.0 to ^0.5.1
+
+### Fixed
+
+- Aligned `PluginContext.files` helpers with the latest schema by treating optional `FileRef` fields (`content`, `remote_url`, `size`, `extension`, `mime_type`, `res_key`, `filename`) as nullable and preserving existing OSS `file_ref` objects when re-uploading
+
 ## [0.5.0] - 2026-03-13
 
 ### Added
