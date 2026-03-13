@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-03-13
+
 ### Added
 
+- OAuth2 credential flow support: channel handlers for `oauth2_build_authorize_url`, `oauth2_get_token`, and `oauth2_refresh_token` with request/response and error routing; credential definitions may implement `oauth2_build_authorize_url`, `oauth2_get_token`, and `oauth2_refresh_token` methods
+
 ### Changed
+
+- Updated `@choiceopen/atomemo-plugin-schema` from ^0.4.1 to ^0.5.0
 
 ### Fixed
 
@@ -344,7 +350,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `pino` from `^10.2.0` to `^10.2.1`
 - Updated `es-toolkit` from `^1.43.0` to `^1.44.0`
 
-[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.5...v0.4.0
 [0.3.5]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.4...v0.3.5
 [0.3.4]: https://github.com/choice-open/atomemo-plugin-sdk-js/compare/v0.3.3...v0.3.4

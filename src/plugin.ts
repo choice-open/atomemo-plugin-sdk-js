@@ -30,6 +30,28 @@ const ToolInvokeMessage = z.object({
   credentials: z.record(z.string(), z.any()).optional(),
 })
 
+const OAuth2BuildAuthorizeUrlMessage = z.object({
+  request_id: z.string(),
+  credential_name: z.string(),
+  credential: z.record(z.string(), z.any()),
+  redirect_uri: z.string(),
+  state: z.string(),
+})
+
+const OAuth2GetTokenMessage = z.object({
+  request_id: z.string(),
+  credential_name: z.string(),
+  credential: z.record(z.string(), z.any()).optional(),
+  code: z.string(),
+  redirect_uri: z.string(),
+})
+
+const OAuth2RefreshTokenMessage = z.object({
+  request_id: z.string(),
+  credential_name: z.string(),
+  credential: z.record(z.string(), z.any()),
+})
+
 type CredentialDefinition = z.infer<typeof CredentialDefinitionSchema>
 type ToolDefinition = z.infer<typeof ToolDefinitionSchema>
 type ModelDefinition = z.infer<typeof ModelDefinitionSchema>
@@ -184,6 +206,113 @@ export async function createPlugin<Locales extends string[]>(
               })
             } else {
               channel.push("credential_auth_spec_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+
+        channel.on("oauth2_build_authorize_url", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = OAuth2BuildAuthorizeUrlMessage.parse(message)
+            const definition = registry.resolve("credential", event.credential_name)
+            if (isNil(definition.oauth2_build_authorize_url)) {
+              throw new Error("Credential oauth2_build_authorize_url method is not implemented")
+            }
+
+            const BuildAuthorizeUrlWrapper =
+              CredentialDefinitionSchema.shape.oauth2_build_authorize_url.unwrap()
+            const buildAuthorizeUrl = BuildAuthorizeUrlWrapper.implementAsync(
+              definition.oauth2_build_authorize_url,
+            )
+
+            const { credential, redirect_uri, state } = event
+            const data = await buildAuthorizeUrl({
+              args: { credential, redirect_uri, state },
+              context: pluginContext,
+            })
+
+            channel.push("oauth2_build_authorize_url_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("oauth2_build_authorize_url_error", {
+                request_id,
+                error: serializeError(error),
+              })
+            } else {
+              channel.push("oauth2_build_authorize_url_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+
+        channel.on("oauth2_get_token", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = OAuth2GetTokenMessage.parse(message)
+            const definition = registry.resolve("credential", event.credential_name)
+            if (isNil(definition.oauth2_get_token)) {
+              throw new Error("Credential oauth2_get_token method is not implemented")
+            }
+
+            const GetTokenWrapper = CredentialDefinitionSchema.shape.oauth2_get_token.unwrap()
+            const getToken = GetTokenWrapper.implementAsync(definition.oauth2_get_token)
+
+            const { credential: rawCredential, code, redirect_uri } = event
+            const credential = rawCredential ?? {}
+            const data = await getToken({
+              args: { credential, code, redirect_uri },
+              context: pluginContext,
+            })
+
+            channel.push("oauth2_get_token_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("oauth2_get_token_error", {
+                request_id,
+                error: serializeError(error),
+              })
+            } else {
+              channel.push("oauth2_get_token_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+
+        channel.on("oauth2_refresh_token", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = OAuth2RefreshTokenMessage.parse(message)
+            const definition = registry.resolve("credential", event.credential_name)
+            if (isNil(definition.oauth2_refresh_token)) {
+              throw new Error("Credential oauth2_refresh_token method is not implemented")
+            }
+
+            const RefreshTokenWrapper =
+              CredentialDefinitionSchema.shape.oauth2_refresh_token.unwrap()
+            const refreshToken = RefreshTokenWrapper.implementAsync(definition.oauth2_refresh_token)
+
+            const { credential } = event
+            const data = await refreshToken({ args: { credential }, context: pluginContext })
+
+            channel.push("oauth2_refresh_token_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("oauth2_refresh_token_error", {
+                request_id,
+                error: serializeError(error),
+              })
+            } else {
+              channel.push("oauth2_refresh_token_error", {
                 request_id,
                 error: serializeError(new Error("Unexpected Error")),
               })
