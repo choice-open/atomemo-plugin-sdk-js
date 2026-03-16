@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-03-16
+
+### Changed
+
+- Updated `@choiceopen/atomemo-plugin-schema` from ^0.5.2 to ^0.5.3
+
 ## [0.5.2] - 2026-03-13
 
 ### Changed
