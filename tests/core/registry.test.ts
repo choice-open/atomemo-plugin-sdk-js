@@ -8,10 +8,11 @@ import type {
 } from "../../src/types"
 
 describe("registry", () => {
-  const mockPlugin: PluginDefinition = {
+  const mockPlugin: PluginDefinition<["en_US"], any> = {
     name: "test-plugin",
     display_name: { en_US: "Test Plugin" },
     description: { en_US: "A test plugin" },
+    lang: "typescript",
     icon: "🔌",
     author: "Test Author",
     email: "test@example.com",

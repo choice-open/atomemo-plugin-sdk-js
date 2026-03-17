@@ -8,9 +8,7 @@ type Feature = Pick<CredentialDefinition, "name" | "description">
 describe("serializeFeature", () => {
   test("should serialize feature with only primitive values", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "A test feature",
       },
@@ -30,9 +28,7 @@ describe("serializeFeature", () => {
 
   test("should exclude functions from serialization", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -45,9 +41,7 @@ describe("serializeFeature", () => {
     } as Feature & { handler: () => string; config: { enabled: boolean } }
     const result = serializeFeature(feature)
     expect(result).toEqual({
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -60,9 +54,7 @@ describe("serializeFeature", () => {
 
   test("should exclude multiple functions", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -78,9 +70,7 @@ describe("serializeFeature", () => {
     }
     const result = serializeFeature(feature)
     expect(result).toEqual({
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -94,9 +84,7 @@ describe("serializeFeature", () => {
 
   test("should handle feature with only functions", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -105,9 +93,7 @@ describe("serializeFeature", () => {
     } as Feature & { handler: () => void; executor: () => void }
     const result = serializeFeature(feature)
     expect(result).toEqual({
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -116,18 +102,14 @@ describe("serializeFeature", () => {
 
   test("should handle empty feature object", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
     } satisfies Feature
     const result = serializeFeature(feature)
     expect(result).toEqual({
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -136,9 +118,7 @@ describe("serializeFeature", () => {
 
   test("should preserve nested objects", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -154,9 +134,7 @@ describe("serializeFeature", () => {
     }
     const result = serializeFeature(feature)
     expect(result).toEqual({
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -172,9 +150,7 @@ describe("serializeFeature", () => {
 
   test("should handle arrays", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -182,9 +158,7 @@ describe("serializeFeature", () => {
     } as Feature & { tags: string[] }
     const result = serializeFeature(feature)
     expect(result).toEqual({
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
@@ -194,9 +168,7 @@ describe("serializeFeature", () => {
 
   test("should handle null and undefined values", () => {
     const feature = {
-      name: {
-        en_US: "Test Feature",
-      },
+      name: "Test Feature",
       description: {
         en_US: "Test Description",
       },
