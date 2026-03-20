@@ -12,6 +12,7 @@ import { createHubCaller } from "./hub"
 import { getSession } from "./oneauth"
 import { createRegistry } from "./registry"
 import { createTransporter, type TransporterOptions } from "./transporter"
+import { extractSpecialTypeValues } from "./utils/extract-special-type-values"
 import { parseFileRefs } from "./utils/parse-file-refs"
 import { serializeError } from "./utils/serialize-error"
 
@@ -26,6 +27,24 @@ const ToolInvokeMessage = z.object({
   request_id: z.string(),
   plugin_identifier: z.string().optional(),
   tool_name: z.string(),
+  parameters: z.record(z.string(), z.any()),
+  credentials: z.record(z.string(), z.any()).optional(),
+})
+
+const LocatorListMessage = z.object({
+  request_id: z.string(),
+  tool_name: z.string(),
+  method: z.string(),
+  filter: z.string().nullish(),
+  pagination_token: z.string().nullish(),
+  parameters: z.record(z.string(), z.any()),
+  credentials: z.record(z.string(), z.any()).optional(),
+})
+
+const ResourceMappingMessage = z.object({
+  request_id: z.string(),
+  tool_name: z.string(),
+  method: z.string(),
   parameters: z.record(z.string(), z.any()),
   credentials: z.record(z.string(), z.any()).optional(),
 })
@@ -326,7 +345,7 @@ export async function createPlugin<Locales extends string[]>(
           try {
             const event = ToolInvokeMessage.parse(message)
             const { credentials } = event
-            const parameters = parseFileRefs(event.parameters) as Record<string, unknown>
+            const parameters = extractSpecialTypeValues(parseFileRefs(event.parameters))
             const definition = registry.resolve("tool", event.tool_name)
 
             const InvokeMethodWrapper = ToolDefinitionSchema.shape.invoke
@@ -339,6 +358,74 @@ export async function createPlugin<Locales extends string[]>(
               channel.push("invoke_tool_error", { request_id, error: serializeError(error) })
             } else {
               channel.push("invoke_tool_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+
+        channel.on("locator_list", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = LocatorListMessage.parse(message)
+            const definition = registry.resolve("tool", event.tool_name)
+            const locatorListMethod = definition.locator_list?.[event.method]
+
+            if (isNil(locatorListMethod)) {
+              throw new Error("Tool locator_list method is not implemented")
+            }
+
+            const parameters = extractSpecialTypeValues(parseFileRefs(event.parameters))
+            const credentials = event.credentials ?? {}
+            const data = await locatorListMethod({
+              filter: event.filter,
+              pagination_token: event.pagination_token,
+              parameters,
+              credentials,
+            })
+
+            channel.push("locator_list_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("locator_list_error", { request_id, error: serializeError(error) })
+            } else {
+              channel.push("locator_list_error", {
+                request_id,
+                error: serializeError(new Error("Unexpected Error")),
+              })
+            }
+          }
+        })
+
+        channel.on("resource_mapping", async (message) => {
+          const request_id = message.request_id
+
+          try {
+            const event = ResourceMappingMessage.parse(message)
+            const definition = registry.resolve("tool", event.tool_name)
+            const resourceMappingMethod = definition.resource_mapping?.[event.method]
+
+            if (isNil(resourceMappingMethod)) {
+              throw new Error("Tool resource_mapping method is not implemented")
+            }
+
+            const parameters = extractSpecialTypeValues(parseFileRefs(event.parameters))
+            const credentials = event.credentials ?? {}
+            const data = await resourceMappingMethod({
+              args: {
+                parameters,
+                credentials,
+              },
+            })
+
+            channel.push("resource_mapping_response", { request_id, data })
+          } catch (error) {
+            if (error instanceof Error) {
+              channel.push("resource_mapping_error", { request_id, error: serializeError(error) })
+            } else {
+              channel.push("resource_mapping_error", {
                 request_id,
                 error: serializeError(new Error("Unexpected Error")),
               })
