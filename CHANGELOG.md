@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `extractResourceLocator` utility to extract the raw string value from a `ResourceLocatorValue`; supports an optional `urlRegex` argument applied when `mode_name` is `"url"` that returns the first capture group
+- Added `extractResourceMapper` utility to extract the field mapping from a `ResourceMapperValue`
+- Both utilities are exported from the package root
+
 ## [0.6.0] - 2026-03-23
 
 ### Added
