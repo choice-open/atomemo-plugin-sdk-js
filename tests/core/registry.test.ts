@@ -1,14 +1,9 @@
 import { beforeEach, describe, expect, test } from "bun:test"
 import { createRegistry } from "../../src/registry"
-import type {
-  CredentialDefinition,
-  ModelDefinition,
-  PluginDefinition,
-  ToolDefinition,
-} from "../../src/types"
+import type { CredentialDefinition, ModelDefinition, ToolDefinition } from "../../src/types"
 
 describe("registry", () => {
-  const mockPlugin: PluginDefinition<["en_US"], any> = {
+  const mockPlugin: Parameters<typeof createRegistry>[0] = {
     name: "test-plugin",
     display_name: { en_US: "Test Plugin" },
     description: { en_US: "A test plugin" },
@@ -230,6 +225,30 @@ describe("registry", () => {
       expect(serialized.plugin.credentials).toEqual([])
       expect(serialized.plugin.models).toEqual([])
       expect(serialized.plugin.tools).toEqual([])
+    })
+
+    test("should omit locator_list and resource_mapping from serialized tool definitions", () => {
+      const tool: ToolDefinition = {
+        name: "sheet-tool",
+        display_name: { en_US: "Sheet Tool" },
+        description: { en_US: "Tool with resource helper methods" },
+        icon: "🧩",
+        parameters: [],
+        invoke: async () => "result",
+        locator_list: {
+          search_spreadsheets: async () => ({ results: [] }),
+          search_sheets: async () => ({ results: [] }),
+        },
+        resource_mapping: {
+          map_fields: async () => ({ fields: [] }),
+        },
+      }
+
+      registry.register("tool", tool)
+
+      const serialized = registry.serialize()
+      expect(serialized.plugin.tools[0]).not.toHaveProperty("locator_list")
+      expect(serialized.plugin.tools[0]).not.toHaveProperty("resource_mapping")
     })
 
     test("should serialize all feature types", () => {

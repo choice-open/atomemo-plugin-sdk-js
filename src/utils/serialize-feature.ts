@@ -15,6 +15,11 @@ export const serializeFeature = (feature: Record<string, unknown>) => {
       return finale
     }
 
+    // omit locator_list and resource_mapping in tool definition
+    if (key === "locator_list" || key === "resource_mapping") {
+      return finale
+    }
+
     return Object.assign(finale, { [key]: value as JsonValue })
   }, {})
 }

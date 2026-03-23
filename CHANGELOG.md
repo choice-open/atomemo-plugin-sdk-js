@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `locator_list` channel event handler to support resource locator listing with filter and pagination support
+- Added `resource_mapping` channel event handler to support resource field mapping
+
+### Changed
+
+- Updated `@choiceopen/atomemo-plugin-schema` from ^0.5.4 to ^0.6.0
+
+### Fixed
+
+- `serializeFeature` now omits `locator_list` and `resource_mapping` from serialized tool definitions (these are runtime-only handler maps and should not be sent to the server)
+
 ## [0.5.4] - 2026-03-16
 
 ### Changed
