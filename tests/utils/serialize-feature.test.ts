@@ -186,4 +186,76 @@ describe("serializeFeature", () => {
     expect(result).toHaveProperty("value", "test")
     expect(result).toHaveProperty("description", { en_US: "Test Description" })
   })
+
+  test("should omit locator_list and resource_mapping function records", () => {
+    const feature = {
+      name: "Resource Tool",
+      description: {
+        en_US: "Tool with resource methods",
+      },
+      locator_list: {
+        search_spreadsheets: async () => ({ results: [] }),
+        search_sheets: async () => ({ results: [] }),
+      },
+      resource_mapping: {
+        get_fields: async () => ({ fields: [] }),
+      },
+    } as Feature & {
+      locator_list: Record<string, (...args: unknown[]) => unknown>
+      resource_mapping: Record<string, (...args: unknown[]) => unknown>
+    }
+
+    const result = serializeFeature(feature)
+    expect(result).toEqual({
+      name: { en_US: "Resource Tool" },
+      description: { en_US: "Tool with resource methods" },
+    })
+  })
+
+  test("should still serialize other function records to method name arrays", () => {
+    const feature = {
+      name: "Generic Function Record Tool",
+      description: {
+        en_US: "Tool with generic function record",
+      },
+      other_methods: {
+        foo: async () => "ok",
+        bar: async () => "ok2",
+      },
+    } as Feature & {
+      other_methods: Record<string, (...args: unknown[]) => unknown>
+    }
+
+    const result = serializeFeature(feature)
+    expect(result).toEqual({
+      name: { en_US: "Generic Function Record Tool" },
+      description: { en_US: "Tool with generic function record" },
+      other_methods: ["foo", "bar"],
+    })
+  })
+
+  test("should keep mixed-value objects unchanged", () => {
+    const feature = {
+      name: "Mixed Object Tool",
+      description: {
+        en_US: "Object has both function and non-function values",
+      },
+      mixed_object: {
+        run: () => "ok",
+        label: "value",
+      },
+    } as Feature & {
+      mixed_object: Record<string, string | (() => string)>
+    }
+
+    const result = serializeFeature(feature)
+    expect(result).toEqual({
+      name: { en_US: "Mixed Object Tool" },
+      description: { en_US: "Object has both function and non-function values" },
+      mixed_object: {
+        run: expect.any(Function),
+        label: "value",
+      },
+    })
+  })
 })
