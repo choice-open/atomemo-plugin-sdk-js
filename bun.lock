@@ -5,7 +5,7 @@
     "": {
       "name": "@choiceopen/atomemo-plugin-sdk-js",
       "dependencies": {
-        "@choiceopen/atomemo-plugin-schema": "^0.6.0",
+        "@choiceopen/atomemo-plugin-schema": "^0.6.1",
         "phoenix": "^1.8.5",
         "pino": "^10.3.1",
         "pino-pretty": "^13.1.3",
@@ -59,7 +59,7 @@
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.4.6", "", { "os": "win32", "cpu": "x64" }, "sha512-7++XhnsPlr1HDbor5amovPjOH6vsrFOCdp93iKXhFn6bcMUI6soodj3WWKfgEO6JosKU1W5n3uky3WW9RlRjTg=="],
 
-    "@choiceopen/atomemo-plugin-schema": ["@choiceopen/atomemo-plugin-schema@0.6.0", "", { "dependencies": { "type-fest": "^5.4.4" }, "peerDependencies": { "zod": "^4" } }, "sha512-7/JO9T21Z/PS0r7HXuxu9R0agMdkn+0MkKUX8pgD5d80kpYhZozzqJdZj4KYobyI/DJkJppab5MPUvI0mPDdSQ=="],
+    "@choiceopen/atomemo-plugin-schema": ["@choiceopen/atomemo-plugin-schema@0.6.1", "", { "dependencies": { "type-fest": "^5.4.4" }, "peerDependencies": { "zod": "^4" } }, "sha512-Orw2vR3dJBR6ntYus0HXLM6nSMiXnX62YwxdX7eZTEhPY9/o0/NfMZgfcwRJ9i76tBBcllK4L0zm56HAAfg1yQ=="],
 
     "@emnapi/core": ["@emnapi/core@1.8.1", "", { "dependencies": { "@emnapi/wasi-threads": "1.1.0", "tslib": "^2.4.0" } }, "sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg=="],
 
